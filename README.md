@@ -1,4 +1,4 @@
-# Word-order-in-translation
+# word-order-in-translation
 This repo is for SNU 2025 Fall NLP term project.
 
 ## Introduction
