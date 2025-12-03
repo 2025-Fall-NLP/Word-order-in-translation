@@ -4,12 +4,14 @@
 import argparse
 import sys
 from pathlib import Path
+
 import yaml
 
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from src.analysis import analyze_all_correlations, print_correlation_summary, save_correlation_results
+from src.analysis import (analyze_all_correlations, print_correlation_summary,
+                          save_correlation_results)
 
 
 def main():

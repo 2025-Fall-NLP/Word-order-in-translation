@@ -58,8 +58,8 @@ python scripts/run_translation.py --config configs/config.yaml
 # Baseline evaluation only (no fine-tuning)
 python scripts/run_translation.py --config configs/config.yaml --baseline-only
 
-# Resume from existing checkpoints
-python scripts/run_translation.py --config configs/config.yaml --resume
+# Force retrain even if checkpoints exist
+python scripts/run_translation.py --config configs/config.yaml --retrain
 ```
 
 ### 3. Analyze Correlations

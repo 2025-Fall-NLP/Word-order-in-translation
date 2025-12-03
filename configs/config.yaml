@@ -25,6 +25,7 @@ datasets:
     type: opus
     name: Helsinki-NLP/opus-100
     split: train
+    max_samples: 10000
 
 similarity:
   methods:
@@ -32,7 +33,7 @@ similarity:
       model: microsoft/mdeberta-v3-base
       pooling: mean
       similarity_fn: cosine
-      batch_size: 32
+      batch_size: 1
       max_length: 512
 
 translation:
@@ -49,7 +50,6 @@ translation:
         model: Unbabel/wmt20-comet-da
         batch_size: 16
   training:
-    max_samples: 10000
     epochs: 3
     batch_size: 8
     learning_rate: 3.0e-5

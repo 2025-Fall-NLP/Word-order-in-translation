@@ -5,34 +5,55 @@ from typing import Any, Dict, List, Optional
 
 
 class BaseTranslator(ABC):
-    """Base class for translation models."""
+    """Base class for translation models (inference-only)."""
 
-    def __init__(self, config: Dict[str, Any], lang_codes: Optional[Dict[str, str]] = None):
+    def __init__(self, config: Dict[str, Any]):
         self.config = config
-        self.lang_codes = lang_codes or {}
 
     @abstractmethod
-    def translate(self, texts: List[str], src_lang: str, tgt_lang: str, batch_size: int = 16) -> List[str]:
-        pass
-
-    @abstractmethod
-    def prepare_for_training(self, src_lang: str, tgt_lang: str) -> None:
-        pass
-
-    @abstractmethod
-    def get_model_for_training(self):
-        pass
-
-    @abstractmethod
-    def get_tokenizer(self):
-        pass
-
-    @abstractmethod
-    def save(self, path: str) -> None:
+    def translate(
+        self, texts: List[str], src_lang: str, tgt_lang: str, **kwargs
+    ) -> List[str]:
+        """Translate text(s) from source to target language."""
         pass
 
     @abstractmethod
     def load(self, path: str) -> None:
+        """Load model weights from a checkpoint."""
+        pass
+
+    @abstractmethod
+    def reload(self) -> None:
+        """Reset to base model weights."""
+        pass
+
+
+class TrainableMixin(ABC):
+    """Mixin for translators that support fine-tuning."""
+
+    @property
+    @abstractmethod
+    def model(self):
+        """Underlying model for trainer access."""
+        pass
+
+    @property
+    @abstractmethod
+    def tokenizer(self):
+        """Tokenizer for trainer access."""
+        pass
+
+    @abstractmethod
+    def preprocess_batch(
+        self,
+        examples: Dict,
+        src_lang: str,
+        tgt_lang: str,
+        src_col: str,
+        tgt_col: str,
+        max_length: int,
+    ) -> Dict:
+        """Tokenize batch for training."""
         pass
 
 
@@ -43,7 +64,12 @@ class BaseEvalMetric(ABC):
         self.config = config
 
     @abstractmethod
-    def compute(self, hypotheses: List[str], references: List[str], sources: Optional[List[str]] = None) -> float:
+    def compute(
+        self,
+        hypotheses: List[str],
+        references: List[str],
+        sources: Optional[List[str]] = None,
+    ) -> float:
         pass
 
     @property

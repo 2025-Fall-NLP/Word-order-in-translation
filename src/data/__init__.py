@@ -1,6 +1,5 @@
 from .base import BaseDatasetLoader, ParallelSentences
-from .flores import FloresLoader
-from .opus import OpusLoader
+from .datasets import FloresLoader, OpusLoader
 from .registry import get_dataset, list_datasets, register_dataset
 
 __all__ = [

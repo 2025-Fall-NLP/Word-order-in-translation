@@ -11,17 +11,18 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from src.data import get_dataset
-from src.translation import get_eval, get_model
-from src.translation.trainer import (
+from src.translation import (
     checkpoint_exists,
     finetune_translation_model,
     get_checkpoint_path,
+    get_eval,
+    get_model,
 )
-from src.utils import get_pair_key, is_computed, load_results, save_results
+from src.utils import get_pair_key, save_results
 
 
-def evaluate_model(translator, src, tgt, data_loader, data_config, eval_cfg):
-    data = data_loader.load(src, tgt, data_config["split"])
+def evaluate_model(translator, src, tgt, data_loader, eval_cfg):
+    data = data_loader.load(src, tgt)
     translations = translator.translate(
         data.src_sentences, src, tgt, show_progress=True
     )
@@ -43,8 +44,9 @@ def main():
     parser = argparse.ArgumentParser(description="Translation experiments")
     parser.add_argument("--config", required=True)
     parser.add_argument("--baseline-only", action="store_true")
-    parser.add_argument("--resume", action="store_true")
-    parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument(
+        "--retrain", action="store_true", help="Retrain even if checkpoint exists"
+    )
     args = parser.parse_args()
 
     with open(args.config) as f:
@@ -67,40 +69,26 @@ def main():
     train_loader = get_dataset(train_data_cfg["type"])(train_data_cfg)
 
     # Initialize translator (mBART has its own DEFAULT_LANG_CODES)
-    translator = None if args.dry_run else get_model(model_cfg["type"])(model_cfg)
+    translator = get_model(model_cfg["type"])(model_cfg)
 
     # BASELINE
     print("\n" + "=" * 60 + "\nBASELINE EVALUATION\n" + "=" * 60)
     baseline = {
-        m["type"]: {
-            "path": output_dir / f"baseline_{m['type']}.json",
-            "data": load_results(output_dir / f"baseline_{m['type']}.json"),
-        }
+        m["type"]: {"path": output_dir / f"baseline_{m['type']}.json", "results": {}}
         for m in eval_cfg["metrics"]
     }
 
     for src, tgt in pairs:
         key = get_pair_key(src, tgt)
-        if all(
-            is_computed(baseline[m["type"]]["data"], src, tgt)
-            for m in eval_cfg["metrics"]
-        ):
-            print(f"\n[SKIP] {key}")
-            continue
-        if args.dry_run:
-            print(f"\n[TODO] {key}")
-            continue
         print(f"\n[EVAL] {key}")
-        scores = evaluate_model(
-            translator, src, tgt, eval_loader, eval_data_cfg, eval_cfg
-        )
+        scores = evaluate_model(translator, src, tgt, eval_loader, eval_cfg)
         for name, score in scores.items():
             if score is not None:
-                baseline[name]["data"]["results"][key] = score
+                baseline[name]["results"][key] = score
                 save_results(
                     baseline[name]["path"],
-                    {"stage": "baseline", "metric": name},
-                    baseline[name]["data"]["results"],
+                    {"stage": "baseline", "metric": name, "model": model_cfg["name"]},
+                    baseline[name]["results"],
                 )
 
     if args.baseline_only:
@@ -111,17 +99,14 @@ def main():
     for src, tgt in pairs:
         key = get_pair_key(src, tgt)
         ckpt = get_checkpoint_path(ckpt_dir, model_cfg["type"], src, tgt)
-        if args.resume and checkpoint_exists(ckpt_dir, model_cfg["type"], src, tgt):
-            print(f"\n[SKIP] {key}: checkpoint exists")
-            continue
-        if args.dry_run:
-            print(f"\n[TODO] {key}")
+        if not args.retrain and checkpoint_exists(
+            ckpt_dir, model_cfg["type"], src, tgt
+        ):
+            print(f"\n[SKIP] {key}: checkpoint exists (use --retrain to overwrite)")
             continue
         print(f"\n[TRAIN] {key}")
-        train_data = train_loader.load(
-            src, tgt, train_data_cfg["split"], train_cfg.get("max_samples", 10000)
-        )
-        translator.reload_base_model()
+        train_data = train_loader.load(src, tgt)
+        translator.reload()
         finetune_translation_model(
             translator, train_data, src, tgt, str(ckpt), train_cfg
         )
@@ -129,41 +114,26 @@ def main():
     # FINETUNED EVAL
     print("\n" + "=" * 60 + "\nFINETUNED EVALUATION\n" + "=" * 60)
     finetuned = {
-        m["type"]: {
-            "path": output_dir / f"finetuned_{m['type']}.json",
-            "data": load_results(output_dir / f"finetuned_{m['type']}.json"),
-        }
+        m["type"]: {"path": output_dir / f"finetuned_{m['type']}.json", "results": {}}
         for m in eval_cfg["metrics"]
     }
 
     for src, tgt in pairs:
         key = get_pair_key(src, tgt)
         ckpt = get_checkpoint_path(ckpt_dir, model_cfg["type"], src, tgt)
-        if all(
-            is_computed(finetuned[m["type"]]["data"], src, tgt)
-            for m in eval_cfg["metrics"]
-        ):
-            print(f"\n[SKIP] {key}")
-            continue
         if not checkpoint_exists(ckpt_dir, model_cfg["type"], src, tgt):
             print(f"\n[SKIP] {key}: no checkpoint")
             continue
-        if args.dry_run:
-            print(f"\n[TODO] {key}")
-            continue
         print(f"\n[EVAL] {key}")
         translator.load(str(ckpt))
-        translator.prepare_for_training(src, tgt)
-        scores = evaluate_model(
-            translator, src, tgt, eval_loader, eval_data_cfg, eval_cfg
-        )
+        scores = evaluate_model(translator, src, tgt, eval_loader, eval_cfg)
         for name, score in scores.items():
             if score is not None:
-                finetuned[name]["data"]["results"][key] = score
+                finetuned[name]["results"][key] = score
                 save_results(
                     finetuned[name]["path"],
-                    {"stage": "finetuned", "metric": name},
-                    finetuned[name]["data"]["results"],
+                    {"stage": "finetuned", "metric": name, "model": model_cfg["name"]},
+                    finetuned[name]["results"],
                 )
 
     # SUMMARY
@@ -173,8 +143,8 @@ def main():
         print(f"\n{name.upper()}:\n{'Pair':<10} {'Base':>8} {'Fine':>8} {'Δ':>8}")
         for src, tgt in pairs:
             key = get_pair_key(src, tgt)
-            b = baseline[name]["data"]["results"].get(key)
-            f = finetuned[name]["data"]["results"].get(key)
+            b = baseline[name]["results"].get(key)
+            f = finetuned[name]["results"].get(key)
             d = f"{f-b:+.2f}" if b and f else "N/A"
             print(f"{key:<10} {b or 'N/A':>8} {f or 'N/A':>8} {d:>8}")
 

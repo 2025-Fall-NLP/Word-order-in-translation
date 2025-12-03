@@ -10,3 +10,4 @@ scipy>=1.10.0
 pyyaml>=6.0
 tqdm>=4.65.0
 accelerate>=0.20.0
+isort>=5.12.0

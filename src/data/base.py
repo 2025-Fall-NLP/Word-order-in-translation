@@ -33,14 +33,10 @@ class BaseDatasetLoader(ABC):
     def __init__(self, config: Dict[str, Any]):
         self.config = config
         self.dataset_name = config.get("name")
+        self.split = config.get("split", "train")
+        self.max_samples: Optional[int] = config.get("max_samples")
 
     @abstractmethod
-    def load(
-        self,
-        src_lang: str,
-        tgt_lang: str,
-        split: str,
-        max_samples: Optional[int] = None,
-    ) -> ParallelSentences:
+    def load(self, src_lang: str, tgt_lang: str) -> ParallelSentences:
         """Load parallel sentences for a language pair."""
         pass

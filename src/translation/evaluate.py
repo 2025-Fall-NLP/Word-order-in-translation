@@ -1,9 +1,11 @@
 """Translation evaluation metrics: BLEU and COMET."""
 
 from typing import Any, Dict, List, Optional
+
 import torch
+
 from .base import BaseEvalMetric
-from .registry import register_eval, get_eval
+from .registry import get_eval, register_eval
 
 
 @register_eval("bleu")
@@ -47,20 +49,3 @@ class COMETMetric(BaseEvalMetric):
     @property
     def name(self) -> str:
         return "comet"
-
-
-def evaluate_translations(
-    hypotheses: List[str], references: List[str], sources: Optional[List[str]] = None,
-    metrics_config: List[Dict[str, Any]] = None
-) -> Dict[str, float]:
-    """Evaluate with multiple metrics."""
-    metrics_config = metrics_config or [{"type": "bleu"}, {"type": "comet"}]
-    results = {}
-    for config in metrics_config:
-        metric = get_eval(config["type"])(config)
-        try:
-            results[metric.name] = metric.compute(hypotheses, references, sources)
-        except Exception as e:
-            print(f"Warning: {config['type']} failed: {e}")
-            results[metric.name] = None
-    return results

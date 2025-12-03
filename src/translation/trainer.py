@@ -17,7 +17,7 @@ from transformers import (
 
 from src.data.base import ParallelSentences
 
-from .base import BaseTranslator
+from .base import TrainableMixin
 
 
 def cleanup_checkpoints(output_dir: str) -> None:
@@ -43,24 +43,24 @@ def create_training_dataset(
 
 
 def finetune_translation_model(
-    translator: BaseTranslator,
+    translator: TrainableMixin,
     train_data: ParallelSentences,
     src_lang: str,
     tgt_lang: str,
     output_dir: str,
-    training_config: Dict[str, Any],
+    training_cfg: Dict[str, Any],
     val_fraction: float = 0.1,
 ) -> Dict[str, Any]:
     """Fine-tune a translation model."""
-    translator.prepare_for_training(src_lang, tgt_lang)
-    model, tokenizer = translator.get_model_for_training(), translator.get_tokenizer()
+    model = translator.model
+    tokenizer = translator.tokenizer
 
     train_ds, val_ds = create_training_dataset(train_data, val_fraction)
     print(f"Train: {len(train_ds)}, Val: {len(val_ds)}")
 
-    max_length = training_config.get("max_length", 128)
-    preprocess = lambda ex: translator.preprocess_for_training(
-        ex, "src", "tgt", max_length
+    max_length = training_cfg.get("max_length", 128)
+    preprocess = lambda ex: translator.preprocess_batch(
+        ex, src_lang, tgt_lang, "src", "tgt", max_length
     )
 
     train_tok = train_ds.map(
@@ -73,19 +73,18 @@ def finetune_translation_model(
         eval_strategy="epoch",
         save_strategy="epoch",
         logging_steps=50,
-        learning_rate=training_config.get("learning_rate", 3e-5),
-        per_device_train_batch_size=training_config.get("batch_size", 8),
-        per_device_eval_batch_size=training_config.get("batch_size", 8),
-        num_train_epochs=training_config.get("epochs", 3),
+        learning_rate=training_cfg.get("learning_rate", 3e-5),
+        per_device_train_batch_size=training_cfg.get("batch_size", 8),
+        per_device_eval_batch_size=training_cfg.get("batch_size", 8),
+        num_train_epochs=training_cfg.get("epochs", 3),
         predict_with_generate=True,
         generation_max_length=max_length,
         generation_num_beams=4,
-        bf16=training_config.get("bf16", True) and torch.cuda.is_available(),
+        bf16=training_cfg.get("bf16", True) and torch.cuda.is_available(),
         dataloader_num_workers=0,
-        # Disk space optimizations
-        save_total_limit=1,  # Keep only best checkpoint
-        save_only_model=True,  # Don't save optimizer state (~50% smaller)
-        save_safetensors=True,  # Efficient format
+        save_total_limit=1,
+        save_only_model=True,
+        save_safetensors=True,
         load_best_model_at_end=True,
         metric_for_best_model="bleu",
         greater_is_better=True,
@@ -107,8 +106,8 @@ def finetune_translation_model(
         }
 
     callbacks = (
-        [EarlyStoppingCallback(training_config.get("early_stopping_patience", 2))]
-        if training_config.get("early_stopping_patience")
+        [EarlyStoppingCallback(training_cfg.get("early_stopping_patience", 2))]
+        if training_cfg.get("early_stopping_patience")
         else []
     )
 
@@ -128,7 +127,6 @@ def finetune_translation_model(
     trainer.save_model(output_dir)
     tokenizer.save_pretrained(output_dir)
 
-    # Clean up intermediate checkpoints
     cleanup_checkpoints(output_dir)
 
     return {
