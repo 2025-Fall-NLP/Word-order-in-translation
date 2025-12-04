@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Run translation experiments: baseline eval, fine-tuning, finetuned eval."""
+"""Evaluate translation models (baseline or finetuned)."""
 
 import argparse
 import sys
@@ -11,13 +11,7 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from src.data import get_dataset
-from src.translation import (
-    checkpoint_exists,
-    finetune_translation_model,
-    get_checkpoint_path,
-    get_eval,
-    get_model,
-)
+from src.translation import checkpoint_exists, get_checkpoint_path, get_eval, get_model
 from src.utils import get_pair_key, save_results
 
 
@@ -41,112 +35,81 @@ def evaluate_model(translator, src, tgt, data_loader, eval_cfg):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Translation experiments")
+    parser = argparse.ArgumentParser(description="Evaluate translation models")
     parser.add_argument("--config", required=True)
-    parser.add_argument("--baseline-only", action="store_true")
     parser.add_argument(
-        "--retrain", action="store_true", help="Retrain even if checkpoint exists"
+        "--baseline", action="store_true", help="Evaluate baseline model"
+    )
+    parser.add_argument(
+        "--finetuned", action="store_true", help="Evaluate finetuned model"
     )
     args = parser.parse_args()
+
+    if not args.baseline and not args.finetuned:
+        parser.error("Specify --baseline and/or --finetuned")
 
     with open(args.config) as f:
         config = yaml.safe_load(f)
 
     pairs = config["language_pairs"]
     trans_cfg = config["translation"]
-    model_cfg, eval_cfg, train_cfg = (
-        trans_cfg["model"],
-        trans_cfg["evaluation"],
-        trans_cfg["training"],
-    )
+    model_cfg, eval_cfg = trans_cfg["model"], trans_cfg["evaluation"]
     output_dir = Path(config["paths"]["output_dir"]) / "translation"
     ckpt_dir = config["paths"]["checkpoint_dir"]
 
-    # Initialize dataset loaders from registry
-    eval_data_cfg = config["datasets"]["evaluation"]
-    train_data_cfg = config["datasets"]["training"]
-    eval_loader = get_dataset(eval_data_cfg["type"])(eval_data_cfg)
-    train_loader = get_dataset(train_data_cfg["type"])(train_data_cfg)
-
-    # Initialize translator (mBART has its own DEFAULT_LANG_CODES)
+    eval_loader = get_dataset(config["datasets"]["evaluation"]["type"])(
+        config["datasets"]["evaluation"]
+    )
     translator = get_model(model_cfg["type"])(model_cfg)
 
     # BASELINE
-    print("\n" + "=" * 60 + "\nBASELINE EVALUATION\n" + "=" * 60)
-    baseline = {
-        m["type"]: {"path": output_dir / f"baseline_{m['type']}.json", "results": {}}
-        for m in eval_cfg["metrics"]
-    }
+    if args.baseline:
+        print("\n" + "=" * 60 + "\nBASELINE EVALUATION\n" + "=" * 60)
+        results_by_metric = {m["type"]: {} for m in eval_cfg["metrics"]}
 
-    for src, tgt in pairs:
-        key = get_pair_key(src, tgt)
-        print(f"\n[EVAL] {key}")
-        scores = evaluate_model(translator, src, tgt, eval_loader, eval_cfg)
-        for name, score in scores.items():
-            if score is not None:
-                baseline[name]["results"][key] = score
-                save_results(
-                    baseline[name]["path"],
-                    {"stage": "baseline", "metric": name, "model": model_cfg["name"]},
-                    baseline[name]["results"],
-                )
-
-    if args.baseline_only:
-        return
-
-    # FINE-TUNING
-    print("\n" + "=" * 60 + "\nFINE-TUNING\n" + "=" * 60)
-    for src, tgt in pairs:
-        key = get_pair_key(src, tgt)
-        ckpt = get_checkpoint_path(ckpt_dir, model_cfg["type"], src, tgt)
-        if not args.retrain and checkpoint_exists(
-            ckpt_dir, model_cfg["type"], src, tgt
-        ):
-            print(f"\n[SKIP] {key}: checkpoint exists (use --retrain to overwrite)")
-            continue
-        print(f"\n[TRAIN] {key}")
-        train_data = train_loader.load(src, tgt)
-        translator.reload()
-        finetune_translation_model(
-            translator, train_data, src, tgt, str(ckpt), train_cfg
-        )
-
-    # FINETUNED EVAL
-    print("\n" + "=" * 60 + "\nFINETUNED EVALUATION\n" + "=" * 60)
-    finetuned = {
-        m["type"]: {"path": output_dir / f"finetuned_{m['type']}.json", "results": {}}
-        for m in eval_cfg["metrics"]
-    }
-
-    for src, tgt in pairs:
-        key = get_pair_key(src, tgt)
-        ckpt = get_checkpoint_path(ckpt_dir, model_cfg["type"], src, tgt)
-        if not checkpoint_exists(ckpt_dir, model_cfg["type"], src, tgt):
-            print(f"\n[SKIP] {key}: no checkpoint")
-            continue
-        print(f"\n[EVAL] {key}")
-        translator.load(str(ckpt))
-        scores = evaluate_model(translator, src, tgt, eval_loader, eval_cfg)
-        for name, score in scores.items():
-            if score is not None:
-                finetuned[name]["results"][key] = score
-                save_results(
-                    finetuned[name]["path"],
-                    {"stage": "finetuned", "metric": name, "model": model_cfg["name"]},
-                    finetuned[name]["results"],
-                )
-
-    # SUMMARY
-    print("\n" + "=" * 60 + "\nSUMMARY\n" + "=" * 60)
-    for m in eval_cfg["metrics"]:
-        name = m["type"]
-        print(f"\n{name.upper()}:\n{'Pair':<10} {'Base':>8} {'Fine':>8} {'Δ':>8}")
         for src, tgt in pairs:
             key = get_pair_key(src, tgt)
-            b = baseline[name]["results"].get(key)
-            f = finetuned[name]["results"].get(key)
-            d = f"{f-b:+.2f}" if b and f else "N/A"
-            print(f"{key:<10} {b or 'N/A':>8} {f or 'N/A':>8} {d:>8}")
+            print(f"\n[EVAL] {key}")
+            scores = evaluate_model(translator, src, tgt, eval_loader, eval_cfg)
+            for name, score in scores.items():
+                if score is not None:
+                    results_by_metric[name][key] = score
+                    save_results(
+                        output_dir / f"baseline_{name}.json",
+                        {
+                            "stage": "baseline",
+                            "metric": name,
+                            "model": model_cfg["name"],
+                        },
+                        results_by_metric[name],
+                    )
+
+    # FINETUNED
+    if args.finetuned:
+        print("\n" + "=" * 60 + "\nFINETUNED EVALUATION\n" + "=" * 60)
+        results_by_metric = {m["type"]: {} for m in eval_cfg["metrics"]}
+
+        for src, tgt in pairs:
+            key = get_pair_key(src, tgt)
+            if not checkpoint_exists(ckpt_dir, model_cfg["type"], src, tgt):
+                print(f"\n[SKIP] {key}: no checkpoint")
+                continue
+            print(f"\n[EVAL] {key}")
+            ckpt = get_checkpoint_path(ckpt_dir, model_cfg["type"], src, tgt)
+            translator.load(str(ckpt))
+            scores = evaluate_model(translator, src, tgt, eval_loader, eval_cfg)
+            for name, score in scores.items():
+                if score is not None:
+                    results_by_metric[name][key] = score
+                    save_results(
+                        output_dir / f"finetuned_{name}.json",
+                        {
+                            "stage": "finetuned",
+                            "metric": name,
+                            "model": model_cfg["name"],
+                        },
+                        results_by_metric[name],
+                    )
 
     print("\nDone!")
 
