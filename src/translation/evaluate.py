@@ -5,10 +5,10 @@ from typing import Any, Dict, List, Optional
 import torch
 
 from .base import BaseEvalMetric
-from .registry import get_eval, register_eval
+from .registry import register_eval_metric
 
 
-@register_eval("bleu")
+@register_eval_metric("bleu")
 class BLEUMetric(BaseEvalMetric):
     """BLEU score (0-100) using sacrebleu. Fast but doesn't capture semantics well."""
 
@@ -36,7 +36,7 @@ class BLEUMetric(BaseEvalMetric):
         return "bleu"
 
 
-@register_eval("comet")
+@register_eval_metric("comet")
 class COMETMetric(BaseEvalMetric):
     """COMET score (-1 to 1). Neural metric, requires source sentences."""
 
@@ -74,7 +74,7 @@ class COMETMetric(BaseEvalMetric):
         return "comet"
 
 
-@register_eval("bertscore")
+@register_eval_metric("bertscore")
 class BERTScoreMetric(BaseEvalMetric):
     """BERTScore F1 (0-1)."""
 

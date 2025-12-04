@@ -1,12 +1,13 @@
 from .base import BaseSimilarityMetric
-from .functions import POOLING_FNS, SIMILARITY_FNS
-from .registry import get_similarity, list_similarity_metrics, register_similarity
+from .registry import (
+    get_similarity_metric,
+    list_similarity_metrics,
+    register_similarity_metric,
+)
 
 __all__ = [
     "BaseSimilarityMetric",
-    "register_similarity",
-    "get_similarity",
+    "register_similarity_metric",
+    "get_similarity_metric",
     "list_similarity_metrics",
-    "POOLING_FNS",
-    "SIMILARITY_FNS",
 ]

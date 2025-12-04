@@ -1,34 +1,11 @@
-"""Correlation analysis between language similarity and translation quality."""
+"""Correlation computation functions."""
 
-import json
-from dataclasses import dataclass
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 
 import numpy as np
 from scipy import stats
 
-
-@dataclass
-class CorrelationResult:
-    similarity_metric: str
-    translation_metric: str
-    stage: str  # baseline, finetuned, delta, delta_pct, partial
-    pearson_r: float
-    pearson_p: float
-    spearman_r: float
-    spearman_p: float
-    n_pairs: int
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "similarity_metric": self.similarity_metric,
-            "translation_metric": self.translation_metric,
-            "stage": self.stage,
-            "pearson": {"r": self.pearson_r, "p": self.pearson_p},
-            "spearman": {"rho": self.spearman_r, "p": self.spearman_p},
-            "n_pairs": self.n_pairs,
-        }
+from .base import CorrelationResult
 
 
 def compute_correlation(
@@ -71,7 +48,6 @@ def compute_partial_correlation(
     if len(x) < 4:
         raise ValueError("Need >=4 samples for partial correlation")
 
-    # Residualize x and y on z
     def residualize(a, b):
         slope, intercept, _, _, _ = stats.linregress(b, a)
         return a - (slope * b + intercept)
@@ -81,27 +57,6 @@ def compute_partial_correlation(
 
     r, p = stats.pearsonr(x_resid, y_resid)
     return float(r), float(p)
-
-
-def load_all_results(output_dir: str) -> Tuple[Dict, Dict, Dict]:
-    """Load similarity, baseline, and finetuned results from output directory."""
-    p = Path(output_dir)
-
-    def load_dir(subdir, prefix=""):
-        results = {}
-        d = p / subdir
-        if d.exists():
-            for f in d.glob(f"{prefix}*.json"):
-                with open(f) as fp:
-                    name = f.stem.replace(prefix, "") if prefix else f.stem
-                    results[name] = json.load(fp).get("results", {})
-        return results
-
-    return (
-        load_dir("similarity"),
-        load_dir("translation", "baseline_"),
-        load_dir("translation", "finetuned_"),
-    )
 
 
 def compute_improvements(
@@ -119,16 +74,21 @@ def compute_improvements(
     return delta, delta_pct
 
 
-def analyze_all_correlations(output_dir: str) -> List[CorrelationResult]:
+def analyze_all_correlations(
+    sim_results: Dict[str, Dict[str, float]],
+    baseline: Dict[str, Dict[str, float]],
+    finetuned: Dict[str, Dict[str, float]],
+) -> List[CorrelationResult]:
     """
-    Analyze all correlations:
+    Analyze all correlations between similarity and translation metrics.
+
+    Computes for each (similarity_metric, translation_metric) pair:
     - Similarity vs baseline
     - Similarity vs finetuned
     - Similarity vs delta (absolute improvement)
     - Similarity vs delta_pct (relative improvement)
     - Partial: Similarity vs finetuned, controlling for baseline
     """
-    sim_results, baseline, finetuned = load_all_results(output_dir)
     results = []
 
     for sim_name, sim_scores in sim_results.items():
@@ -225,73 +185,3 @@ def analyze_all_correlations(output_dir: str) -> List[CorrelationResult]:
                         print(f"Skip {sim_name} vs partial_{trans_name}: {e}")
 
     return results
-
-
-def save_correlation_results(
-    results: List[CorrelationResult], output_path: str
-) -> None:
-    """Save correlation results to JSON."""
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-
-    # Group by stage for summary
-    by_stage = {}
-    for r in results:
-        by_stage.setdefault(r.stage, []).append(r)
-
-    summary = {
-        "summary": {
-            "n_correlations": len(results),
-            "significant_pearson": sum(
-                1 for r in results if not np.isnan(r.pearson_p) and r.pearson_p < 0.05
-            ),
-            "significant_spearman": sum(
-                1 for r in results if not np.isnan(r.spearman_p) and r.spearman_p < 0.05
-            ),
-        },
-        "note": "mBART-50 pretraining used imbalanced data; use delta_pct and partial correlations for fairer analysis",
-        "results": [r.to_dict() for r in results],
-    }
-    with open(output_path, "w") as f:
-        json.dump(summary, f, indent=2)
-
-
-def print_correlation_summary(results: List[CorrelationResult]) -> None:
-    """Print human-readable summary."""
-    print("\n" + "=" * 70)
-    print("CORRELATION ANALYSIS")
-    print("=" * 70)
-
-    stages = ["baseline", "finetuned", "delta", "delta_pct", "partial"]
-    stage_labels = {
-        "baseline": "BASELINE (sim vs base quality)",
-        "finetuned": "FINETUNED (sim vs fine quality)",
-        "delta": "DELTA (sim vs absolute improvement)",
-        "delta_pct": "DELTA % (sim vs relative improvement)",
-        "partial": "PARTIAL (sim vs fine, controlling for base)",
-    }
-
-    for stage in stages:
-        stage_results = [r for r in results if r.stage == stage]
-        if not stage_results:
-            continue
-
-        print(f"\n{stage_labels.get(stage, stage.upper())}:")
-        for r in stage_results:
-            sig_p = "**" if r.pearson_p < 0.01 else "*" if r.pearson_p < 0.05 else ""
-            if stage == "partial":
-                print(
-                    f"  {r.similarity_metric} vs {r.translation_metric}: r={r.pearson_r:+.3f}{sig_p}"
-                )
-            else:
-                sig_s = (
-                    "**" if r.spearman_p < 0.01 else "*" if r.spearman_p < 0.05 else ""
-                )
-                print(
-                    f"  {r.similarity_metric} vs {r.translation_metric}: "
-                    f"r={r.pearson_r:+.3f}{sig_p}, ρ={r.spearman_r:+.3f}{sig_s}"
-                )
-
-    print("\n* p<0.05, ** p<0.01")
-    print(
-        "Note: Use delta_pct and partial for fairer analysis (controls for baseline bias)"
-    )

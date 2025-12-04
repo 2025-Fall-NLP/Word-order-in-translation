@@ -46,7 +46,7 @@ class Config:
 
     # Similarity
     @property
-    def similarity_methods(self) -> List[Dict[str, Any]]:
+    def similarity_metrics(self) -> List[Dict[str, Any]]:
         return self._data["similarity"]
 
     # Translation
@@ -55,7 +55,7 @@ class Config:
         return self._data["translation"]["model"]
 
     @property
-    def eval_methods(self) -> List[Dict[str, Any]]:
+    def eval_metrics(self) -> List[Dict[str, Any]]:
         return self._data["translation"]["evaluation"]
 
     @property

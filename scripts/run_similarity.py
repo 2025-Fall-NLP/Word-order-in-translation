@@ -9,8 +9,8 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from src.data import get_dataset
-from src.similarity import get_similarity
-from src.utils import Config, get_pair_key, save_results
+from src.similarity import get_similarity_metric
+from src.utils import OUTPUT_DIR_SIMILARITY, Config, get_pair_key, save_results
 
 
 def main():
@@ -19,15 +19,15 @@ def main():
     args = parser.parse_args()
 
     cfg = Config.load(args.config)
-    output_dir = cfg.output_dir / "similarity"
+    output_dir = cfg.output_dir / OUTPUT_DIR_SIMILARITY
 
     data_loader = get_dataset(cfg.similarity_dataset["type"])(cfg.similarity_dataset)
 
-    for method in cfg.similarity_methods:
-        metric = get_similarity(method["type"])(method)
+    for mc in cfg.similarity_metrics:
+        metric = get_similarity_metric(mc["type"])(mc)
         output_path = output_dir / metric.get_output_filename()
 
-        print(f"\n{'='*60}\n{method['type']}\n{'='*60}")
+        print(f"\n{'='*60}\n{mc['type']}\n{'='*60}")
 
         results = {}
         for src, tgt in cfg.language_pairs:

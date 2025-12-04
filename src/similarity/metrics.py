@@ -7,10 +7,10 @@ from torch import Tensor
 from transformers import AutoModel, AutoTokenizer
 
 from .base import BaseSimilarityMetric
-from .registry import register_similarity
+from .registry import register_similarity_metric
 
 
-@register_similarity("mdeberta")
+@register_similarity_metric("mdeberta")
 class MDeBERTaSimilarity(BaseSimilarityMetric):
     """mDeBERTa-v3 multilingual embeddings."""
 
@@ -36,7 +36,7 @@ class MDeBERTaSimilarity(BaseSimilarityMetric):
         return outputs.last_hidden_state, inputs["attention_mask"]
 
 
-@register_similarity("labse")
+@register_similarity_metric("labse")
 class LaBSESimilarity(BaseSimilarityMetric):
     """LaBSE outputs sentence embeddings directly, so we override compute_sentence_embeddings."""
 

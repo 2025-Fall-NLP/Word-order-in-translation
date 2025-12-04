@@ -1,13 +1,15 @@
+from .base import CorrelationResult
 from .correlation import (
     analyze_all_correlations,
     compute_correlation,
-    create_correlation_summary,
-    load_all_results,
+    compute_improvements,
+    compute_partial_correlation,
 )
 
 __all__ = [
-    "compute_correlation",
+    "CorrelationResult",
     "analyze_all_correlations",
-    "load_all_results",
-    "create_correlation_summary",
+    "compute_correlation",
+    "compute_improvements",
+    "compute_partial_correlation",
 ]
