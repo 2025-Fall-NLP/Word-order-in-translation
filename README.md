@@ -1,6 +1,6 @@
-# Word Order in Translation
+# multilang-simtrans
 
-This repository investigates the correlation between language similarity and machine translation quality.
+This repository investigates the relation between language similarity and machine translation quality in a controlled setup.
 
 ## Introduction
 
@@ -10,7 +10,7 @@ It is generally accepted that language similarity affects translation quality. H
 2. **Evaluate translation quality** before and after fine-tuning (mBART-50)
 3. **Analyze the correlation** between similarity and translation improvement
 
-## Project Structure
+## Directory Structure
 
 ```
 word-order-in-translation/
@@ -35,6 +35,8 @@ word-order-in-translation/
 ## Installation
 
 ```bash
+git clone git@github.com:snunlp-2025-fall-team17/multilang-simtrans.git
+cd multilang-simtrans
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
@@ -48,7 +50,7 @@ pip install -r requirements.txt
 python scripts/run_similarity.py --config configs/config.yaml
 ```
 
-This computes embedding-based similarity scores for all configured language pairs using mDeBERTa with mean pooling.
+This computes embedding-based similarity scores for all configured language pairs.
 
 ### 2. Run Translation Experiments
 
@@ -60,10 +62,10 @@ python scripts/run_finetune.py --config configs/config.yaml
 python scripts/run_translation.py --config configs/config.yaml --baseline --finetuned
 
 # Force retrain even if checkpoints exist, e.g., after adjusting hyperparameters
-python scripts/run_fientune.py --config configs/config.yaml --retrain
+python scripts/run_finetune.py --config configs/config.yaml --retrain
 ```
 
-### 3. Analyze Correlations
+### 3. Analysis
 
 ```bash
 python scripts/run_analysis.py --config configs/config.yaml
@@ -72,7 +74,7 @@ python scripts/run_analysis.py --config configs/config.yaml
 This computes Pearson and Spearman correlations between:
 
 - Similarity vs. baseline translation quality
-- Similarity vs. fine-tuned translation quality
+- Similarity vs. finetuned translation quality
 - Similarity vs. improvement (delta)
 
 ## Configuration

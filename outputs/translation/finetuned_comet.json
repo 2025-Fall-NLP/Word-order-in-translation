@@ -3,7 +3,7 @@
     "stage": "finetuned",
     "metric": "comet",
     "model": "facebook/mbart-large-50-many-to-many-mmt",
-    "computed_at": "2025-12-04T07:38:18.249972"
+    "computed_at": "2025-12-04T18:21:26.477702"
   },
   "results": {
     "es-fr": 0.743096608109036,
