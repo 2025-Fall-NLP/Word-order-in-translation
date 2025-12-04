@@ -28,17 +28,16 @@ datasets:
     max_samples: 20000
 
 similarity:
-  methods:
-    - type: mdeberta
-      model: microsoft/mdeberta-v3-base
-      pooling: mean
-      similarity_fn: cosine
-      batch_size: 64
-      max_length: 512
-    - type: labse
-      model: sentence-transformers/LaBSE
-      similarity_fn: cosine
-      batch_size: 64
+  - type: mdeberta
+    model: microsoft/mdeberta-v3-base
+    pooling: mean
+    similarity_fn: cosine
+    batch_size: 64
+    max_length: 512
+  - type: labse
+    model: sentence-transformers/LaBSE
+    similarity_fn: cosine
+    batch_size: 64
 
 translation:
   model:
@@ -47,15 +46,14 @@ translation:
     max_length: 256
     num_beams: 4
   evaluation:
-    metrics:
-      - type: bleu
-        tokenize: 13a
-      - type: comet
-        model: Unbabel/wmt22-comet-da
-        batch_size: 64
-      - type: bertscore
-        model: bert-base-multilingual-cased
-        batch_size: 64
+    - type: bleu
+      tokenize: 13a
+    - type: comet
+      model: Unbabel/wmt22-comet-da
+      batch_size: 64
+    - type: bertscore
+      model: bert-base-multilingual-cased
+      batch_size: 64
   training:
     epochs: 4
     batch_size: 8

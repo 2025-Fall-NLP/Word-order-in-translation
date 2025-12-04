@@ -51,12 +51,12 @@ def main():
     # BASELINE
     if args.baseline:
         print("\n" + "=" * 60 + "\nBASELINE EVALUATION\n" + "=" * 60)
-        results_by_metric = {m["type"]: {} for m in cfg.eval_metrics}
+        results_by_metric = {m["type"]: {} for m in cfg.eval_methods}
 
         for src, tgt in cfg.language_pairs:
             key = get_pair_key(src, tgt)
             print(f"\n[EVAL] {key}")
-            scores = evaluate_model(translator, src, tgt, eval_loader, cfg.eval_metrics)
+            scores = evaluate_model(translator, src, tgt, eval_loader, cfg.eval_methods)
             for name, score in scores.items():
                 if score is not None:
                     results_by_metric[name][key] = score
@@ -73,7 +73,7 @@ def main():
     # FINETUNED
     if args.finetuned:
         print("\n" + "=" * 60 + "\nFINETUNED EVALUATION\n" + "=" * 60)
-        results_by_metric = {m["type"]: {} for m in cfg.eval_metrics}
+        results_by_metric = {m["type"]: {} for m in cfg.eval_methods}
 
         for src, tgt in cfg.language_pairs:
             key = get_pair_key(src, tgt)
@@ -87,7 +87,7 @@ def main():
                 cfg.checkpoint_dir, cfg.trans_model["type"], src, tgt
             )
             translator.load(str(ckpt))
-            scores = evaluate_model(translator, src, tgt, eval_loader, cfg.eval_metrics)
+            scores = evaluate_model(translator, src, tgt, eval_loader, cfg.eval_methods)
             for name, score in scores.items():
                 if score is not None:
                     results_by_metric[name][key] = score
