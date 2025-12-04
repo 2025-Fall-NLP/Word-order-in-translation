@@ -5,14 +5,12 @@ import argparse
 import sys
 from pathlib import Path
 
-import yaml
-
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from src.data import get_dataset
 from src.similarity import get_similarity
-from src.utils import get_pair_key, save_results
+from src.utils import Config, get_pair_key, save_results
 
 
 def main():
@@ -20,26 +18,19 @@ def main():
     parser.add_argument("--config", required=True, help="Config file path")
     args = parser.parse_args()
 
-    with open(args.config) as f:
-        config = yaml.safe_load(f)
+    cfg = Config.load(args.config)
+    output_dir = cfg.output_dir / "similarity"
 
-    language_pairs = config["language_pairs"]
-    sim_cfg = config["similarity"]
-    data_cfg = config["datasets"]["similarity"]
-    output_dir = Path(config["paths"]["output_dir"]) / "similarity"
+    data_loader = get_dataset(cfg.similarity_dataset["type"])(cfg.similarity_dataset)
 
-    # Initialize dataset loader from registry
-    data_loader = get_dataset(data_cfg["type"])(data_cfg)
-
-    for method_cfg in sim_cfg["methods"]:
-        metric = get_similarity(method_cfg["type"])(method_cfg)
+    for method in cfg.similarity_methods:
+        metric = get_similarity(method["type"])(method)
         output_path = output_dir / metric.get_output_filename()
 
-        print(f"\n{'='*60}\n{method_cfg['type']}\n{'='*60}")
+        print(f"\n{'='*60}\n{method['type']}\n{'='*60}")
 
         results = {}
-
-        for src, tgt in language_pairs:
+        for src, tgt in cfg.language_pairs:
             key = get_pair_key(src, tgt)
             print(f"\n{key}...")
             data = data_loader.load(src, tgt)

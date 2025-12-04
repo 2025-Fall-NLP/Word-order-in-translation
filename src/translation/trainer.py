@@ -48,7 +48,7 @@ def finetune_translation_model(
     src_lang: str,
     tgt_lang: str,
     output_dir: str,
-    training_cfg: Dict[str, Any],
+    cfg: Dict[str, Any],
     val_fraction: float = 0.1,
 ) -> Dict[str, Any]:
     """Fine-tune a translation model."""
@@ -58,7 +58,7 @@ def finetune_translation_model(
     train_ds, val_ds = create_training_dataset(train_data, val_fraction)
     print(f"Train: {len(train_ds)}, Val: {len(val_ds)}")
 
-    max_length = training_cfg.get("max_length", 128)
+    max_length = cfg.get("max_length", 128)
     preprocess = lambda ex: translator.preprocess_batch(
         ex, src_lang, tgt_lang, "src", "tgt", max_length
     )
@@ -73,16 +73,16 @@ def finetune_translation_model(
         eval_strategy="epoch",
         save_strategy="epoch",
         logging_steps=50,
-        learning_rate=training_cfg.get("learning_rate", 3e-5),
-        warmup_ratio=training_cfg.get("warmup_ratio", 0.0),
-        weight_decay=training_cfg.get("weight_decay", 0.0),
-        per_device_train_batch_size=training_cfg.get("batch_size", 8),
-        per_device_eval_batch_size=training_cfg.get("batch_size", 8),
-        num_train_epochs=training_cfg.get("epochs", 5),
+        learning_rate=cfg.get("learning_rate", 3e-5),
+        warmup_ratio=cfg.get("warmup_ratio", 0.0),
+        weight_decay=cfg.get("weight_decay", 0.0),
+        per_device_train_batch_size=cfg.get("batch_size", 8),
+        per_device_eval_batch_size=cfg.get("batch_size", 8),
+        num_train_epochs=cfg.get("epochs", 5),
         predict_with_generate=True,
         generation_max_length=max_length,
         generation_num_beams=4,
-        bf16=training_cfg.get("bf16", True) and torch.cuda.is_available(),
+        bf16=cfg.get("bf16", True) and torch.cuda.is_available(),
         dataloader_num_workers=0,
         save_total_limit=1,
         save_only_model=True,
@@ -108,8 +108,8 @@ def finetune_translation_model(
         }
 
     callbacks = (
-        [EarlyStoppingCallback(training_cfg.get("early_stopping_patience", 2))]
-        if training_cfg.get("early_stopping_patience")
+        [EarlyStoppingCallback(cfg.get("early_stopping_patience", 2))]
+        if cfg.get("early_stopping_patience")
         else []
     )
 

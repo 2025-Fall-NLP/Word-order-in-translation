@@ -5,13 +5,15 @@ import argparse
 import sys
 from pathlib import Path
 
-import yaml
-
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from src.analysis import (analyze_all_correlations, print_correlation_summary,
-                          save_correlation_results)
+from src.analysis import (
+    analyze_all_correlations,
+    print_correlation_summary,
+    save_correlation_results,
+)
+from src.utils import Config
 
 
 def main():
@@ -19,27 +21,26 @@ def main():
     parser.add_argument("--config", required=True, help="Config file path")
     args = parser.parse_args()
 
-    with open(args.config) as f:
-        config = yaml.safe_load(f)
+    cfg = Config.load(args.config)
+    output_path = cfg.output_dir / "analysis" / "correlation.json"
 
-    output_dir = config["paths"]["output_dir"]
-    analysis_output = Path(output_dir) / "analysis" / "correlation.json"
-
-    print(f"\nLoading results from: {output_dir}")
+    print(f"\nLoading results from: {cfg.output_dir}")
 
     try:
-        results = analyze_all_correlations(output_dir)
+        results = analyze_all_correlations(str(cfg.output_dir))
     except Exception as e:
         print(f"Error: {e}\nRun run_similarity.py and run_translation.py first.")
         return 1
 
     if not results:
-        print("No correlations computed. Need similarity + translation results for >=3 pairs.")
+        print(
+            "No correlations computed. Need similarity + translation results for >=3 pairs."
+        )
         return 1
 
     print_correlation_summary(results)
-    save_correlation_results(results, analysis_output)
-    print(f"\nSaved to: {analysis_output}")
+    save_correlation_results(results, str(output_path))
+    print(f"\nSaved to: {output_path}")
     return 0
 
 
