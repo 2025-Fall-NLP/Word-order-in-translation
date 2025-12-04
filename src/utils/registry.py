@@ -15,11 +15,14 @@ def create_registry(name: str):
                 raise ValueError(f"{name} '{type_name}' already registered")
             _registry[type_name] = cls
             return cls
+
         return decorator
 
     def get(type_name: str) -> Type:
         if type_name not in _registry:
-            raise KeyError(f"Unknown {name}: '{type_name}'. Available: {list(_registry.keys())}")
+            raise KeyError(
+                f"Unknown {name}: '{type_name}'. Available: {list(_registry.keys())}"
+            )
         return _registry[type_name]
 
     def list_registered() -> List[str]:

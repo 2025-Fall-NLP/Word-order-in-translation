@@ -48,9 +48,7 @@ class BaseSimilarityMetric(ABC):
                 all_emb.append(self.pooling_fn(token_emb, mask).cpu())
         return torch.cat(all_emb, dim=0)
 
-    def compute_for_pair(
-        self, data: ParallelSentences, show_progress: bool = False
-    ) -> float:
+    def compute_for_pair(self, data: ParallelSentences) -> float:
         """Compute similarity score for a language pair."""
         src_emb = self.compute_sentence_embeddings(data.src_sentences)
         tgt_emb = self.compute_sentence_embeddings(data.tgt_sentences)

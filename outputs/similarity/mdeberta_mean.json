@@ -4,7 +4,7 @@
     "model": "microsoft/mdeberta-v3-base",
     "pooling": "mean",
     "similarity_fn": "cosine",
-    "computed_at": "2025-12-04T17:07:04.342016"
+    "computed_at": "2025-12-04T17:52:14.437808"
   },
   "results": {
     "es-fr": 0.9635287523269653,

@@ -9,6 +9,7 @@ from typing import Any, Dict, Union
 def get_pair_key(src: str, tgt: str) -> str:
     return f"{src}-{tgt}"
 
+
 def save_results(
     path: Union[str, Path], metadata: Dict[str, Any], results: Dict[str, Any]
 ) -> None:

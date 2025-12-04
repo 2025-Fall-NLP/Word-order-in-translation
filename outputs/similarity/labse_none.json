@@ -4,7 +4,7 @@
     "model": "sentence-transformers/LaBSE",
     "pooling": "none",
     "similarity_fn": "cosine",
-    "computed_at": "2025-12-04T17:08:01.995680"
+    "computed_at": "2025-12-04T17:52:50.150405"
   },
   "results": {
     "es-fr": 0.9073648452758789,
