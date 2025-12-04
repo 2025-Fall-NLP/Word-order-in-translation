@@ -32,13 +32,11 @@ def main():
     data_loader = get_dataset(data_cfg["type"])(data_cfg)
 
     for method_cfg in sim_cfg["methods"]:
-        method_type = method_cfg["type"]
-        pooling = method_cfg.get("pooling", "mean")
-        output_path = output_dir / f"{method_type}_{pooling}.json"
+        metric = get_similarity(method_cfg["type"])(method_cfg)
+        output_path = output_dir / metric.get_output_filename()
 
-        print(f"\n{'='*60}\n{method_type} (pooling={pooling})\n{'='*60}")
+        print(f"\n{'='*60}\n{method_cfg['type']}\n{'='*60}")
 
-        metric = get_similarity(method_type)(method_cfg)
         results = {}
 
         for src, tgt in language_pairs:

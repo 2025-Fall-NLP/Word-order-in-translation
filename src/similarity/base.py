@@ -20,7 +20,7 @@ class BaseSimilarityMetric(ABC):
 
     def __init__(self, config: Dict[str, Any]):
         self.config = config
-        pooling_name = config.get("pooling", "mean")
+        pooling_name = config.get("pooling", None)
         if pooling_name not in POOLING_FNS:
             raise ValueError(f"Unknown pooling: {pooling_name}")
         self.pooling_fn = POOLING_FNS[pooling_name]
@@ -30,7 +30,7 @@ class BaseSimilarityMetric(ABC):
             raise ValueError(f"Unknown similarity: {similarity_name}")
         self.similarity_fn = SIMILARITY_FNS[similarity_name]
 
-        self.batch_size = config.get("batch_size", 1)
+        self.batch_size = config.get("batch_size", 32)
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     @abstractmethod
@@ -63,6 +63,6 @@ class BaseSimilarityMetric(ABC):
         return {
             "type": self.config.get("type"),
             "model": self.config.get("model"),
-            "pooling": self.config.get("pooling"),
+            "pooling": self.config.get("pooling", "none"),
             "similarity_fn": self.config.get("similarity_fn", "cosine"),
         }

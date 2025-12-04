@@ -31,7 +31,7 @@ def cleanup_checkpoints(output_dir: str) -> None:
 
 def create_training_dataset(
     data: ParallelSentences, val_fraction: float = 0.1, seed: int = 42
-) -> tuple:
+) -> tuple[Dataset, Dataset]:
     """Create train/val split from parallel sentences."""
     dataset = Dataset.from_dict(
         {"src": data.src_sentences, "tgt": data.tgt_sentences}
@@ -74,9 +74,11 @@ def finetune_translation_model(
         save_strategy="epoch",
         logging_steps=50,
         learning_rate=training_cfg.get("learning_rate", 3e-5),
+        warmup_ratio=training_cfg.get("warmup_ratio", 0.0),
+        weight_decay=training_cfg.get("weight_decay", 0.0),
         per_device_train_batch_size=training_cfg.get("batch_size", 8),
         per_device_eval_batch_size=training_cfg.get("batch_size", 8),
-        num_train_epochs=training_cfg.get("epochs", 3),
+        num_train_epochs=training_cfg.get("epochs", 5),
         predict_with_generate=True,
         generation_max_length=max_length,
         generation_num_beams=4,

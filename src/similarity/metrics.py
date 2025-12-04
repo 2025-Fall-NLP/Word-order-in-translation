@@ -12,9 +12,7 @@ from .registry import register_similarity
 
 @register_similarity("mdeberta")
 class MDeBERTaSimilarity(BaseSimilarityMetric):
-    """
-    mDeBERTa-v3 multilingual embeddings.
-    """
+    """mDeBERTa-v3 multilingual embeddings."""
 
     def __init__(self, config: Dict[str, Any]):
         super().__init__(config)
@@ -36,3 +34,26 @@ class MDeBERTaSimilarity(BaseSimilarityMetric):
         inputs = {k: v.to(self.device) for k, v in inputs.items()}
         outputs = self.model(**inputs)
         return outputs.last_hidden_state, inputs["attention_mask"]
+
+
+@register_similarity("labse")
+class LaBSESimilarity(BaseSimilarityMetric):
+    """LaBSE outputs sentence embeddings directly, so we override compute_sentence_embeddings."""
+
+    def __init__(self, config: Dict[str, Any]):
+        super().__init__(config)
+        from sentence_transformers import SentenceTransformer
+
+        model_name = config.get("model")
+        self.model = SentenceTransformer(model_name)
+        self.model.to(self.device)
+        self.model.eval()
+
+    def compute_token_embeddings(self, sentences: List[str]) -> Tuple[Tensor, Tensor]:
+        raise NotImplementedError("LaBSE uses compute_sentence_embeddings directly")
+
+    def compute_sentence_embeddings(self, sentences: List[str]) -> Tensor:
+        """Override to use sentence-transformers' built-in encoding."""
+        return self.model.encode(
+            sentences, batch_size=self.batch_size, convert_to_tensor=True
+        ).cpu()
