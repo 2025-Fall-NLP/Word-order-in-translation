@@ -56,7 +56,7 @@ translation:
     num_beams: 4
   evaluation:
     - type: bleu
-      tokenize: 13a
+    - type: chrf
     - type: comet
       model: Unbabel/wmt22-comet-da
       batch_size: 64

@@ -1,4 +1,4 @@
-"""Translation evaluation metrics: BLEU and COMET."""
+"""Translation evaluation metrics: BLEU, chrF++, COMET, and BERTScore."""
 
 from typing import Any, Dict, List, Optional
 
@@ -36,9 +36,41 @@ class BLEUMetric(BaseEvalMetric):
         return "bleu"
 
 
+@register_eval_metric("chrf")
+class ChrFMetric(BaseEvalMetric):
+    """chrF++ score (0-100) using sacrebleu. Character-based metric, good for morphologically rich languages."""
+
+    def __init__(self, config: Dict[str, Any]):
+        super().__init__(config)
+        import evaluate
+
+        self._chrf = evaluate.load("chrf")
+        self.char_order = config.get("char_order", 6)
+        self.word_order = config.get("word_order", 2)  # 2 = chrF++
+        self.beta = config.get("beta", 2)
+
+    def compute(
+        self,
+        hypotheses: List[str],
+        references: List[str],
+        sources: Optional[List[str]] = None,
+    ) -> float:
+        return self._chrf.compute(
+            predictions=hypotheses,
+            references=[[r] for r in references],
+            char_order=self.char_order,
+            word_order=self.word_order,
+            beta=self.beta,
+        )["score"]
+
+    @property
+    def name(self) -> str:
+        return "chrf"
+
+
 @register_eval_metric("comet")
 class COMETMetric(BaseEvalMetric):
-    """COMET score (-1 to 1). Neural metric, requires source sentences."""
+    """COMET score (0 to 1). Neural metric, requires source sentences."""
 
     def __init__(self, config: Dict[str, Any]):
         super().__init__(config)
@@ -47,7 +79,7 @@ class COMETMetric(BaseEvalMetric):
         model_path = download_model(config.get("model", "Unbabel/wmt22-comet-da"))
         self._model = load_from_checkpoint(model_path)
         self._gpus = 1 if torch.cuda.is_available() else 0
-        self.batch_size = config.get("batch_size", 16)
+        self.batch_size = config.get("batch_size", 64)
 
     def compute(
         self,
