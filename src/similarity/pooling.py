@@ -1,7 +1,6 @@
 """Pooling and similarity functions for embeddings."""
 
 import torch
-import torch.nn.functional as F
 from torch import Tensor
 
 
@@ -36,18 +35,3 @@ POOLING_FNS = {
     "max": max_pooling,
     None: no_pooling,
 }
-
-
-def cosine_similarity_fn(emb1: Tensor, emb2: Tensor) -> float:
-    """Mean cosine similarity between aligned pairs."""
-    emb1_norm = F.normalize(emb1, p=2, dim=1)
-    emb2_norm = F.normalize(emb2, p=2, dim=1)
-    return float(torch.sum(emb1_norm * emb2_norm, dim=1).mean().item())
-
-
-def euclidean_similarity_fn(emb1: Tensor, emb2: Tensor) -> float:
-    """Mean negative euclidean distance (higher = more similar)."""
-    return float(-torch.norm(emb1 - emb2, p=2, dim=1).mean().item())
-
-
-SIMILARITY_FNS = {"cosine": cosine_similarity_fn, "euclidean": euclidean_similarity_fn}

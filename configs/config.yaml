@@ -40,12 +40,10 @@ similarity:
   - type: mdeberta
     model: microsoft/mdeberta-v3-base
     pooling: mean
-    similarity_fn: cosine
     batch_size: 64
     max_length: 512
   - type: labse
     model: sentence-transformers/LaBSE
-    similarity_fn: cosine
     batch_size: 64
 
 translation:

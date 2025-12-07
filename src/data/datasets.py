@@ -144,13 +144,6 @@ class NLLBLoader(BaseDatasetLoader):
 
     Supports direct X-Y language pairs (no English pivoting required).
     Includes quality score filtering based on LASER scores.
-
-    Uses allenai/nllb dataset from HuggingFace which has:
-    - Direct parallel data for many language pairs
-    - LASER-based quality scores for filtering
-
-    Note: Not all language pairs are available. NLLB focuses on specific
-    language combinations. Use list_available_pairs() to check availability.
     """
 
     DEFAULT_LANG_CODES = {

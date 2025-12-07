@@ -4,11 +4,12 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Tuple
 
 import torch
+import torch.nn.functional as F
 from torch import Tensor
 
 from src.data.base import ParallelSentences
 
-from .functions import POOLING_FNS, SIMILARITY_FNS
+from .pooling import POOLING_FNS
 
 
 class BaseSimilarityMetric(ABC):
@@ -25,12 +26,7 @@ class BaseSimilarityMetric(ABC):
             raise ValueError(f"Unknown pooling: {pooling_name}")
         self.pooling_fn = POOLING_FNS[pooling_name]
 
-        similarity_name = config.get("similarity_fn", "cosine")
-        if similarity_name not in SIMILARITY_FNS:
-            raise ValueError(f"Unknown similarity: {similarity_name}")
-        self.similarity_fn = SIMILARITY_FNS[similarity_name]
-
-        self.batch_size = config.get("batch_size", 32)
+        self.batch_size = config.get("batch_size", 64)
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     @abstractmethod
@@ -52,7 +48,14 @@ class BaseSimilarityMetric(ABC):
         """Compute similarity score for a language pair."""
         src_emb = self.compute_sentence_embeddings(data.src_sentences)
         tgt_emb = self.compute_sentence_embeddings(data.tgt_sentences)
-        return self.similarity_fn(src_emb, tgt_emb)
+        return self._cosine_similarity(src_emb, tgt_emb)
+
+    @staticmethod
+    def _cosine_similarity(emb1: Tensor, emb2: Tensor) -> float:
+        """Mean cosine similarity between two tensors."""
+        emb1_norm = F.normalize(emb1, p=2, dim=1)
+        emb2_norm = F.normalize(emb2, p=2, dim=1)
+        return float(torch.sum(emb1_norm * emb2_norm, dim=1).mean().item())
 
     def get_output_filename(self) -> str:
         return f"{self.config.get('type', 'unknown')}_{self.config.get('pooling', 'none')}.json"
@@ -62,5 +65,4 @@ class BaseSimilarityMetric(ABC):
             "type": self.config.get("type"),
             "model": self.config.get("model"),
             "pooling": self.config.get("pooling", "none"),
-            "similarity_fn": self.config.get("similarity_fn", "cosine"),
         }
