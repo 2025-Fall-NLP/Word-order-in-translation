@@ -2,7 +2,6 @@
 
 from typing import Any, Dict, List, Tuple
 
-import torch
 from torch import Tensor
 from transformers import AutoModel, AutoTokenizer
 

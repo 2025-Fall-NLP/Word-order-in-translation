@@ -1,0 +1,104 @@
+{
+  "description": "NLLB dataset statistics for all 15 configured language pairs",
+  "dataset": "allenai/nllb",
+  "samples_checked": 20000,
+  "pairs": {
+    "gl-pt": {
+      "nllb_config": "glg_Latn-por_Latn",
+      "samples_available": 20000,
+      "avg_laser_score": 1.1966,
+      "min_laser_score": 1.1847
+    },
+    "ru-uk": {
+      "nllb_config": "rus_Cyrl-ukr_Cyrl",
+      "samples_available": 20000,
+      "avg_laser_score": 1.2104,
+      "min_laser_score": 1.1998
+    },
+    "pt-ro": {
+      "nllb_config": "por_Latn-ron_Latn",
+      "samples_available": 20000,
+      "avg_laser_score": 1.1867,
+      "min_laser_score": 1.178
+    },
+    "gl-it": {
+      "nllb_config": "glg_Latn-ita_Latn",
+      "samples_available": 20000,
+      "avg_laser_score": 1.184,
+      "min_laser_score": 1.1715
+    },
+    "en-de": {
+      "nllb_config": "deu_Latn-eng_Latn",
+      "samples_available": 20000,
+      "avg_laser_score": 1.2027,
+      "min_laser_score": 1.1935
+    },
+    "ko-ja": {
+      "nllb_config": "jpn_Jpan-kor_Hang",
+      "samples_available": 20000,
+      "avg_laser_score": 1.1564,
+      "min_laser_score": 1.1422
+    },
+    "ja-zh": {
+      "nllb_config": "jpn_Jpan-zho_Hans",
+      "samples_available": 20000,
+      "avg_laser_score": 1.1625,
+      "min_laser_score": 1.1461
+    },
+    "ko-zh": {
+      "nllb_config": "kor_Hang-zho_Hans",
+      "samples_available": 20000,
+      "avg_laser_score": 1.1491,
+      "min_laser_score": 1.1353
+    },
+    "en-fr": {
+      "nllb_config": "eng_Latn-fra_Latn",
+      "samples_available": 20000,
+      "avg_laser_score": 1.2095,
+      "min_laser_score": 1.1995
+    },
+    "en-es": {
+      "nllb_config": "eng_Latn-spa_Latn",
+      "samples_available": 20000,
+      "avg_laser_score": 1.2198,
+      "min_laser_score": 1.2077
+    },
+    "en-ru": {
+      "nllb_config": "eng_Latn-rus_Cyrl",
+      "samples_available": 20000,
+      "avg_laser_score": 1.1927,
+      "min_laser_score": 1.1838
+    },
+    "en-ko": {
+      "nllb_config": "eng_Latn-kor_Hang",
+      "samples_available": 20000,
+      "avg_laser_score": 1.169,
+      "min_laser_score": 1.1575
+    },
+    "en-ja": {
+      "nllb_config": "eng_Latn-jpn_Jpan",
+      "samples_available": 20000,
+      "avg_laser_score": 1.2091,
+      "min_laser_score": 1.1929
+    },
+    "en-zh": {
+      "nllb_config": "eng_Latn-zho_Hans",
+      "samples_available": 20000,
+      "avg_laser_score": 1.186,
+      "min_laser_score": 1.1747
+    },
+    "en-ar": {
+      "nllb_config": "arb_Arab-eng_Latn",
+      "samples_available": 20000,
+      "avg_laser_score": 1.1863,
+      "min_laser_score": 1.1768
+    }
+  },
+  "summary": {
+    "total_pairs": 15,
+    "laser_score_range": {
+      "min": 1.1353,
+      "max": 1.2198
+    }
+  }
+}

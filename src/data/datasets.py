@@ -1,7 +1,7 @@
 """Requires datasets<3.0.0."""
 
 import random
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional, Tuple
 
 from datasets import load_dataset
 
@@ -17,12 +17,18 @@ class FloresLoader(BaseDatasetLoader):
 
     DEFAULT_LANG_CODES = {
         "en": "eng_Latn",
-        "ko": "kor_Hang",
-        "ja": "jpn_Jpan",
-        "zh": "zho_Hans",
         "de": "deu_Latn",
         "fr": "fra_Latn",
         "es": "spa_Latn",
+        "it": "ita_Latn",
+        "pt": "por_Latn",
+        "ro": "ron_Latn",
+        "gl": "glg_Latn",
+        "ru": "rus_Cyrl",
+        "uk": "ukr_Cyrl",
+        "ko": "kor_Hang",
+        "ja": "jpn_Jpan",
+        "zh": "zho_Hans",
         "ar": "arb_Arab",
     }
 
@@ -64,7 +70,6 @@ class OpusLoader(BaseDatasetLoader):
 
     def __init__(self, config: Dict[str, Any]):
         super().__init__(config)
-        self.seed = config.get("seed", 42)
 
     def _get_dataset(self, pair_name: str):
         cache_key = f"{self.dataset_name}_{pair_name}_{self.split}"
@@ -75,7 +80,6 @@ class OpusLoader(BaseDatasetLoader):
         return _cache[cache_key]
 
     def load(self, src_lang: str, tgt_lang: str) -> ParallelSentences:
-        random.seed(self.seed)
         if src_lang == "en" or tgt_lang == "en":
             return self._load_english_pair(src_lang, tgt_lang)
         return self._load_non_english_pair(src_lang, tgt_lang)
@@ -100,9 +104,8 @@ class OpusLoader(BaseDatasetLoader):
                 tgt_sentences.append(t["en"])
 
         if self.max_samples and len(src_sentences) > self.max_samples:
-            indices = random.sample(range(len(src_sentences)), self.max_samples)
-            src_sentences = [src_sentences[i] for i in indices]
-            tgt_sentences = [tgt_sentences[i] for i in indices]
+            src_sentences = src_sentences[: self.max_samples]
+            tgt_sentences = tgt_sentences[: self.max_samples]
 
         return ParallelSentences(src_lang, tgt_lang, src_sentences, tgt_sentences)
 
@@ -129,8 +132,168 @@ class OpusLoader(BaseDatasetLoader):
             raise ValueError(f"No matching sentences for {src_lang}-{tgt_lang}")
 
         if self.max_samples and len(src_sentences) > self.max_samples:
-            indices = random.sample(range(len(src_sentences)), self.max_samples)
-            src_sentences = [src_sentences[i] for i in indices]
-            tgt_sentences = [tgt_sentences[i] for i in indices]
+            src_sentences = src_sentences[: self.max_samples]
+            tgt_sentences = tgt_sentences[: self.max_samples]
 
         return ParallelSentences(src_lang, tgt_lang, src_sentences, tgt_sentences)
+
+
+@register_dataset("nllb")
+class NLLBLoader(BaseDatasetLoader):
+    """NLLB (No Language Left Behind) parallel corpus loader.
+
+    Supports direct X-Y language pairs (no English pivoting required).
+    Includes quality score filtering based on LASER scores.
+
+    Uses allenai/nllb dataset from HuggingFace which has:
+    - Direct parallel data for many language pairs
+    - LASER-based quality scores for filtering
+
+    Note: Not all language pairs are available. NLLB focuses on specific
+    language combinations. Use list_available_pairs() to check availability.
+    """
+
+    DEFAULT_LANG_CODES = {
+        "en": "eng_Latn",
+        "de": "deu_Latn",
+        "fr": "fra_Latn",
+        "es": "spa_Latn",
+        "it": "ita_Latn",
+        "pt": "por_Latn",
+        "ro": "ron_Latn",
+        "gl": "glg_Latn",
+        "ru": "rus_Cyrl",
+        "uk": "ukr_Cyrl",
+        "ko": "kor_Hang",
+        "ja": "jpn_Jpan",
+        "zh": "zho_Hans",
+        "ar": "arb_Arab",
+    }
+
+    def __init__(self, config: Dict[str, Any]):
+        super().__init__(config)
+        self.lang_codes = config.get("lang_codes", self.DEFAULT_LANG_CODES)
+
+    def _get_pair_names(self, src_lang: str, tgt_lang: str) -> List[str]:
+        """Get possible dataset pair names in NLLB format (try both orderings)."""
+        src_code = self.lang_codes.get(src_lang, src_lang)
+        tgt_code = self.lang_codes.get(tgt_lang, tgt_lang)
+        return [f"{src_code}-{tgt_code}", f"{tgt_code}-{src_code}"]
+
+    def _get_dataset(self, pair_names: List[str]) -> Tuple[Any, str]:
+        """Load dataset with streaming (allenai/nllb is 450GB+)."""
+        for pair_name in pair_names:
+            cache_key = f"{self.dataset_name}_{pair_name}_{self.split}"
+            if cache_key in _cache:
+                return _cache[cache_key], pair_name
+
+            try:
+                # Use streaming=True because allenai/nllb is massive
+                dataset = load_dataset(
+                    self.dataset_name,
+                    pair_name,
+                    split=self.split,
+                    trust_remote_code=True,
+                    streaming=True,
+                )
+                _cache[cache_key] = dataset
+                return dataset, pair_name
+            except Exception:
+                continue
+
+        raise ValueError(
+            f"Language pair not available in NLLB. Tried: {pair_names}. "
+            f"This pair may not exist in the allenai/nllb dataset."
+        )
+
+    def load(self, src_lang: str, tgt_lang: str) -> ParallelSentences:
+        """Load parallel sentences from NLLB."""
+        if src_lang not in self.lang_codes:
+            raise ValueError(f"Unknown source language: {src_lang}")
+        if tgt_lang not in self.lang_codes:
+            raise ValueError(f"Unknown target language: {tgt_lang}")
+
+        src_code = self.lang_codes[src_lang]
+        tgt_code = self.lang_codes[tgt_lang]
+        pair_names = self._get_pair_names(src_lang, tgt_lang)
+
+        try:
+            dataset, actual_pair_name = self._get_dataset(pair_names)
+        except Exception as e:
+            raise ValueError(f"Failed to load NLLB data for {src_lang}-{tgt_lang}: {e}")
+
+        # Extract sentences (dataset is sorted by quality, take first max_samples)
+        src_sentences, tgt_sentences = self._extract_data(
+            dataset, src_code, tgt_code, actual_pair_name
+        )
+
+        if not src_sentences:
+            raise ValueError(f"No sentences found for {src_lang}-{tgt_lang}")
+
+        return ParallelSentences(src_lang, tgt_lang, src_sentences, tgt_sentences)
+
+    def _extract_data(
+        self,
+        dataset,
+        src_code: str,
+        tgt_code: str,
+        pair_name: str,
+    ) -> Tuple[List[str], List[str]]:
+        """Extract sentences from streaming dataset.
+
+        NLLB is sorted by LASER score descending, so first samples are best.
+        Simply takes first max_samples (or 50k if not set).
+        """
+        src_sentences = []
+        tgt_sentences = []
+
+        # Determine if we need to swap based on pair_name order
+        swap_needed = pair_name.startswith(tgt_code)
+        target_count = self.max_samples if self.max_samples else 50000
+
+        for ex in dataset:
+            src_sent, tgt_sent = self._get_sentences(
+                ex, src_code, tgt_code, swap_needed
+            )
+
+            if src_sent and tgt_sent:
+                src_sentences.append(src_sent)
+                tgt_sentences.append(tgt_sent)
+
+            if len(src_sentences) >= target_count:
+                break
+
+        return src_sentences, tgt_sentences
+
+    def _get_sentences(
+        self, example: Dict, src_code: str, tgt_code: str, swap_needed: bool
+    ) -> Tuple[Optional[str], Optional[str]]:
+        """Extract source and target sentences from example."""
+        # Try translation dict format (like OPUS)
+        if "translation" in example:
+            t = example["translation"]
+            # Try full codes first, then short codes
+            src_sent = t.get(src_code) or t.get(src_code.split("_")[0])
+            tgt_sent = t.get(tgt_code) or t.get(tgt_code.split("_")[0])
+            return (src_sent, tgt_sent)
+
+        # Try direct field format (src/tgt or source/target)
+        src_sent = (
+            example.get("src") or example.get("source") or example.get("sentence1")
+        )
+        tgt_sent = (
+            example.get("tgt") or example.get("target") or example.get("sentence2")
+        )
+
+        if src_sent and tgt_sent:
+            if swap_needed:
+                return (tgt_sent, src_sent)
+            return (src_sent, tgt_sent)
+
+        # Try indexed format (text_0, text_1)
+        if "text_0" in example and "text_1" in example:
+            if swap_needed:
+                return (example["text_1"], example["text_0"])
+            return (example["text_0"], example["text_1"])
+
+        return (None, None)

@@ -1,16 +1,25 @@
 language_pairs:
-  - [es, fr] # Romance
-  - [de, en] # Germanic
-  - [ko, ja] # East Asian (SOV)
-  - [ja, zh] # Shared script
-  - [ko, zh] # Historical
+  # Very High Similarity
+  - [gl, pt]
+  - [ru, uk]
+  # High Similarity
+  - [pt, ro]
+  - [gl, it]
+  # Medium-High Similarity
+  - [en, de]
+  # Medium Similarity
+  - [ko, ja]
+  - [ja, zh]
+  - [ko, zh]
+  # Low Similarity
+  - [en, fr]
+  - [en, es]
+  - [en, ru]
+  # Very Low Similarity
   - [en, ko]
   - [en, ja]
   - [en, zh]
-  - [en, fr]
-  - [en, es]
-  - [en, ar] # Low similarity
-  - [ar, zh]
+  - [en, ar]
 
 datasets:
   similarity:
@@ -22,8 +31,8 @@ datasets:
     name: facebook/flores
     split: devtest
   training:
-    type: opus
-    name: Helsinki-NLP/opus-100
+    type: nllb
+    name: allenai/nllb
     split: train
     max_samples: 20000
 
@@ -41,8 +50,8 @@ similarity:
 
 translation:
   model:
-    type: mbart
-    name: facebook/mbart-large-50-many-to-many-mmt
+    type: nllb
+    name: facebook/nllb-200-distilled-600M
     max_length: 256
     num_beams: 4
   evaluation:
