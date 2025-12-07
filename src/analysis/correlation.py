@@ -8,6 +8,90 @@ from scipy import stats
 from .base import CorrelationResult
 
 
+def apply_fdr_correction(results: List[CorrelationResult]) -> List[CorrelationResult]:
+    """
+    Apply Benjamini-Hochberg FDR correction to all p-values.
+
+    This corrects for multiple comparisons by controlling the false discovery rate.
+    With 30 tests at alpha=0.05, we'd expect ~1.5 false positives by chance.
+    FDR correction adjusts p-values to account for this.
+
+    Args:
+        results: List of CorrelationResult objects with raw p-values
+
+    Returns:
+        Same list with pearson_p_adj and spearman_p_adj fields populated
+    """
+    if not results:
+        return results
+
+    # Collect all valid Pearson p-values
+    pearson_ps = []
+    pearson_indices = []
+    for i, r in enumerate(results):
+        if not np.isnan(r.pearson_p):
+            pearson_ps.append(r.pearson_p)
+            pearson_indices.append(i)
+
+    # Collect all valid Spearman p-values
+    spearman_ps = []
+    spearman_indices = []
+    for i, r in enumerate(results):
+        if not np.isnan(r.spearman_p):
+            spearman_ps.append(r.spearman_p)
+            spearman_indices.append(i)
+
+    # Apply BH correction to Pearson p-values
+    if pearson_ps:
+        pearson_adj = _benjamini_hochberg(np.array(pearson_ps))
+        for idx, adj_p in zip(pearson_indices, pearson_adj):
+            results[idx].pearson_p_adj = float(adj_p)
+
+    # Apply BH correction to Spearman p-values
+    if spearman_ps:
+        spearman_adj = _benjamini_hochberg(np.array(spearman_ps))
+        for idx, adj_p in zip(spearman_indices, spearman_adj):
+            results[idx].spearman_p_adj = float(adj_p)
+
+    return results
+
+
+def _benjamini_hochberg(p_values: np.ndarray) -> np.ndarray:
+    """
+    Benjamini-Hochberg FDR correction.
+
+    Args:
+        p_values: Array of raw p-values
+
+    Returns:
+        Array of adjusted p-values (same order as input)
+    """
+    n = len(p_values)
+    if n == 0:
+        return p_values
+
+    # Sort p-values and get original indices
+    sorted_indices = np.argsort(p_values)
+    sorted_p = p_values[sorted_indices]
+
+    # BH adjustment: p_adj[i] = p[i] * n / rank[i]
+    # Then ensure monotonicity from right to left
+    ranks = np.arange(1, n + 1)
+    adjusted = sorted_p * n / ranks
+
+    # Ensure monotonicity: adjusted[i] <= adjusted[i+1]
+    adjusted = np.minimum.accumulate(adjusted[::-1])[::-1]
+
+    # Cap at 1.0
+    adjusted = np.minimum(adjusted, 1.0)
+
+    # Restore original order
+    result = np.empty(n)
+    result[sorted_indices] = adjusted
+
+    return result
+
+
 def compute_correlation(
     x: np.ndarray,
     y: np.ndarray,
