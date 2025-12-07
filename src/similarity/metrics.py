@@ -2,8 +2,11 @@
 
 from typing import Any, Dict, List, Tuple
 
+import numpy as np
 from torch import Tensor
 from transformers import AutoModel, AutoTokenizer
+
+from src.data.base import ParallelSentences
 
 from .base import BaseSimilarityMetric
 from .registry import register_similarity_metric
@@ -56,3 +59,55 @@ class LaBSESimilarity(BaseSimilarityMetric):
         return self.model.encode(
             sentences, batch_size=self.batch_size, convert_to_tensor=True
         ).cpu()
+
+
+@register_similarity_metric("script")
+class ScriptSimilarity(BaseSimilarityMetric):
+    """Script similarity based on character set overlap (Jaccard similarity)."""
+
+    def __init__(self, config: Dict[str, Any]):
+        super().__init__(config)
+
+    def compute_token_embeddings(self, sentences: List[str]) -> Tuple[Tensor, Tensor]:
+        raise NotImplementedError("ScriptSimilarity uses compute_for_pair directly")
+
+    def compute_for_pair(self, data: ParallelSentences) -> float:
+        """Compute Jaccard similarity of character sets."""
+        src_chars = set("".join(data.src_sentences))
+        tgt_chars = set("".join(data.tgt_sentences))
+        intersection = len(src_chars & tgt_chars)
+        union = len(src_chars | tgt_chars)
+        return intersection / union if union > 0 else 0.0
+
+
+@register_similarity_metric("uriel")
+class URIELSimilarity(BaseSimilarityMetric):
+    """URIEL typological similarity using lang2vec feature vectors."""
+
+    def __init__(self, config: Dict[str, Any]):
+        super().__init__(config)
+        self.features = config.get("features", "syntax_knn+phonology_knn+inventory_knn")
+
+    def compute_token_embeddings(self, sentences: List[str]) -> Tuple[Tensor, Tensor]:
+        raise NotImplementedError("URIELSimilarity uses compute_for_pair directly")
+
+    def compute_for_pair(self, data: ParallelSentences) -> float:
+        """Compute cosine similarity of typological feature vectors."""
+        import lang2vec.lang2vec as l2v
+
+        features = l2v.get_features([data.src_lang, data.tgt_lang], self.features)
+        src_vec = np.array(features[data.src_lang])
+        tgt_vec = np.array(features[data.tgt_lang])
+
+        # Handle missing values (NaN) by using only shared valid features
+        valid_mask = ~(np.isnan(src_vec) | np.isnan(tgt_vec))
+        if not valid_mask.any():
+            return 0.0
+
+        src_valid = src_vec[valid_mask]
+        tgt_valid = tgt_vec[valid_mask]
+
+        # Cosine similarity
+        dot = np.dot(src_valid, tgt_valid)
+        norm = np.linalg.norm(src_valid) * np.linalg.norm(tgt_valid)
+        return float(dot / norm) if norm > 0 else 0.0

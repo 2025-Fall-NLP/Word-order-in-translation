@@ -45,6 +45,9 @@ similarity:
   - type: labse
     model: sentence-transformers/LaBSE
     batch_size: 64
+  - type: script
+  - type: uriel
+    features: syntax_knn+phonology_knn+inventory_knn
 
 translation:
   model:

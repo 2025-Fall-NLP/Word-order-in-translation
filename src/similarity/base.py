@@ -15,8 +15,7 @@ from .pooling import POOLING_FNS
 class BaseSimilarityMetric(ABC):
     """
     Base class for embedding-based similarity metrics.
-    Subclasses implement compute_token_embeddings().
-    Pooling and similarity functions are configured via config dict.
+    Subclasses implements either compute_for_pair, compute_sentence_embeddings or compute_token_embeddings.
     """
 
     def __init__(self, config: Dict[str, Any]):
@@ -25,7 +24,6 @@ class BaseSimilarityMetric(ABC):
         if pooling_name not in POOLING_FNS:
             raise ValueError(f"Unknown pooling: {pooling_name}")
         self.pooling_fn = POOLING_FNS[pooling_name]
-
         self.batch_size = config.get("batch_size", 64)
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -63,6 +61,4 @@ class BaseSimilarityMetric(ABC):
     def get_metadata(self) -> Dict[str, Any]:
         return {
             "type": self.config.get("type"),
-            "model": self.config.get("model"),
-            "pooling": self.config.get("pooling", "none"),
         }
