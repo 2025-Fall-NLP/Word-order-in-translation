@@ -5,9 +5,9 @@ from typing import Callable, Dict, List, Type, TypeVar
 T = TypeVar("T")
 
 
-def create_registry(name: str):
-    """Create a registry. Returns (register_decorator, get_fn, list_fn)."""
-    _registry: Dict[str, Type] = {}
+def create_registry(name: str, base_type: Type[T] = object):
+    """Create a type-aware registry. Returns (register_decorator, get_fn, list_fn)."""
+    _registry: Dict[str, Type[T]] = {}
 
     def register(type_name: str) -> Callable[[Type[T]], Type[T]]:
         def decorator(cls: Type[T]) -> Type[T]:
@@ -18,7 +18,7 @@ def create_registry(name: str):
 
         return decorator
 
-    def get(type_name: str) -> Type:
+    def get(type_name: str) -> Type[T]:
         if type_name not in _registry:
             raise KeyError(
                 f"Unknown {name}: '{type_name}'. Available: {list(_registry.keys())}"

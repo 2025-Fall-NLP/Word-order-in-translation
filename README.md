@@ -24,7 +24,7 @@ word-order-in-translation/
 │   └── utils/                   # Common utilities
 ├── scripts/
 │   ├── run_similarity.py        # Compute language similarity
-│   ├── run_translation.py       # Evaluate translation
+│   ├── run_evaluate.py          # Evaluate translation
 |   ├── run_finetune.py          # Finetune translation model
 │   └── run_analysis.py          # Analyze correlations
 ├── notebooks/                   # Original exploration notebooks
@@ -59,7 +59,7 @@ This computes embedding-based similarity scores for all configured language pair
 python scripts/run_finetune.py --config configs/config.yaml
 
 # Evaluate the baseline and finetuned models
-python scripts/run_translation.py --config configs/config.yaml --baseline --finetuned
+python scripts/run_evaluate.py --config configs/config.yaml --baseline --finetuned
 
 # Force retrain even if checkpoints exist, e.g., after adjusting hyperparameters
 python scripts/run_finetune.py --config configs/config.yaml --retrain

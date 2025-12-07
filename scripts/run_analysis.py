@@ -31,13 +31,12 @@ def print_summary(results: List[CorrelationResult]) -> None:
     print("Primary: Spearman ρ (robust to outliers) | Secondary: Pearson r")
     print("=" * 80)
 
-    stages = ["baseline", "finetuned", "delta", "delta_pct", "partial"]
+    stages = ["baseline", "finetuned", "delta", "delta_pct"]
     stage_labels = {
         "baseline": "BASELINE (sim vs base quality)",
         "finetuned": "FINETUNED (sim vs fine quality)",
         "delta": "DELTA (sim vs absolute improvement)",
         "delta_pct": "DELTA % (sim vs relative improvement)",
-        "partial": "PARTIAL (sim vs fine, controlling for base) [Pearson only]",
     }
 
     def sig_marker(p_raw: float, p_adj: float | None) -> str:
@@ -72,24 +71,15 @@ def print_summary(results: List[CorrelationResult]) -> None:
 
         print(f"\n{stage_labels.get(stage, stage.upper())}:")
         for r in stage_results:
-            if stage == "partial":
-                # Partial correlation only has Pearson (no rank-based partial method)
-                sig_p = sig_marker(r.pearson_p, r.pearson_p_adj)
-                eff_p = effect_label(r.pearson_r)
-                print(
-                    f"  {r.similarity_metric} vs {r.translation_metric}: "
-                    f"r={r.pearson_r:+.3f}{sig_p} [{eff_p}]"
-                )
-            else:
-                # Show Spearman first (primary), then Pearson (secondary)
-                sig_s = sig_marker(r.spearman_p, r.spearman_p_adj)
-                sig_p = sig_marker(r.pearson_p, r.pearson_p_adj)
-                eff_s = effect_label(r.spearman_r)
-                eff_p = effect_label(r.pearson_r)
-                print(
-                    f"  {r.similarity_metric} vs {r.translation_metric}: "
-                    f"ρ={r.spearman_r:+.3f}{sig_s} [{eff_s}], r={r.pearson_r:+.3f}{sig_p} [{eff_p}]"
-                )
+            # Show Spearman first (primary), then Pearson (secondary)
+            sig_s = sig_marker(r.spearman_p, r.spearman_p_adj)
+            sig_p = sig_marker(r.pearson_p, r.pearson_p_adj)
+            eff_s = effect_label(r.spearman_r)
+            eff_p = effect_label(r.pearson_r)
+            print(
+                f"  {r.similarity_metric} vs {r.translation_metric}: "
+                f"ρ={r.spearman_r:+.3f}{sig_s} [{eff_s}], r={r.pearson_r:+.3f}{sig_p} [{eff_p}]"
+            )
 
     print("\n" + "-" * 80)
     print("* p_adj<0.05, ** p_adj<0.01 (Benjamini-Hochberg FDR-corrected)")

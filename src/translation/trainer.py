@@ -4,7 +4,6 @@ import shutil
 from pathlib import Path
 from typing import Any, Dict
 
-import evaluate
 import numpy as np
 import torch
 from datasets import Dataset
@@ -17,7 +16,7 @@ from transformers import (
 
 from src.data.base import ParallelSentences
 
-from .base import TrainableMixin
+from .base import BaseTranslator, TrainableMixin
 
 
 def cleanup_checkpoints(output_dir: str) -> None:
@@ -43,7 +42,7 @@ def create_training_dataset(
 
 
 def finetune_translation_model(
-    translator: TrainableMixin,
+    translator: BaseTranslator | TrainableMixin,
     train_data: ParallelSentences,
     src_lang: str,
     tgt_lang: str,
@@ -58,10 +57,15 @@ def finetune_translation_model(
     train_ds, val_ds = create_training_dataset(train_data, val_fraction)
     print(f"Train: {len(train_ds)}, Val: {len(val_ds)}")
 
+    translator.set_langs(src_lang, tgt_lang)
+
     max_length = cfg.get("max_length", 128)
     preprocess = lambda ex: translator.preprocess_batch(
-        ex, src_lang, tgt_lang, "src", "tgt", max_length
+        ex, "src", "tgt", max_length
     )
+
+    # Keep validation sources for COMET (needs src sentences)
+    val_sources = val_ds["src"]
 
     train_tok = train_ds.map(
         preprocess, batched=True, remove_columns=train_ds.column_names
@@ -78,6 +82,8 @@ def finetune_translation_model(
         weight_decay=cfg.get("weight_decay", 0.0),
         per_device_train_batch_size=cfg.get("batch_size", 8),
         per_device_eval_batch_size=cfg.get("batch_size", 8),
+        gradient_accumulation_steps=cfg.get("gradient_accumulation_steps", 1),
+        gradient_checkpointing=cfg.get("gradient_checkpointing", False),
         num_train_epochs=cfg.get("epochs", 5),
         predict_with_generate=True,
         generation_max_length=max_length,
@@ -88,11 +94,15 @@ def finetune_translation_model(
         save_only_model=True,
         save_safetensors=True,
         load_best_model_at_end=True,
-        metric_for_best_model="bleu",
+        metric_for_best_model="comet",
         greater_is_better=True,
     )
 
-    bleu = evaluate.load("sacrebleu")
+    from comet import download_model, load_from_checkpoint
+
+    comet_path = download_model("Unbabel/wmt22-comet-da")
+    comet_model = load_from_checkpoint(comet_path)
+    comet_gpus = 1 if torch.cuda.is_available() else 0
 
     def compute_metrics(pred):
         preds, labels = pred
@@ -101,11 +111,20 @@ def finetune_translation_model(
         decoded_preds = tokenizer.batch_decode(preds, skip_special_tokens=True)
         labels = np.where(labels != -100, labels, tokenizer.pad_token_id)
         decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
-        return {
-            "bleu": bleu.compute(
-                predictions=decoded_preds, references=[[l] for l in decoded_labels]
-            )["score"]
-        }
+
+        comet_data = [
+            {"src": s, "mt": h, "ref": r}
+            for s, h, r in zip(val_sources, decoded_preds, decoded_labels)
+        ]
+        comet_score = comet_model.predict(
+            comet_data,
+            batch_size=16,
+            gpus=comet_gpus,
+            num_workers=0,
+            progress_bar=False,
+        ).system_score
+
+        return {"comet": comet_score}
 
     callbacks = (
         [EarlyStoppingCallback(cfg.get("early_stopping_patience", 2))]
@@ -118,7 +137,7 @@ def finetune_translation_model(
         args=args,
         train_dataset=train_tok,
         eval_dataset=val_tok,
-        data_collator=DataCollatorForSeq2Seq(tokenizer, model),
+        data_collator=DataCollatorForSeq2Seq(tokenizer, model, label_pad_token_id=-100),
         processing_class=tokenizer,
         compute_metrics=compute_metrics,
         callbacks=callbacks,

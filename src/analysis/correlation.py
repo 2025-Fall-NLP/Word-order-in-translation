@@ -120,29 +120,6 @@ def compute_correlation(
     )
 
 
-def compute_partial_correlation(
-    x: np.ndarray, y: np.ndarray, z: np.ndarray
-) -> Tuple[float, float]:
-    """
-    Compute partial correlation between x and y, controlling for z.
-    Returns (partial_r, p_value).
-    """
-    valid = ~(np.isnan(x) | np.isnan(y) | np.isnan(z))
-    x, y, z = x[valid], y[valid], z[valid]
-    if len(x) < 4:
-        raise ValueError("Need >=4 samples for partial correlation")
-
-    def residualize(a, b):
-        slope, intercept, _, _, _ = stats.linregress(b, a)
-        return a - (slope * b + intercept)
-
-    x_resid = residualize(x, z)
-    y_resid = residualize(y, z)
-
-    r, p = stats.pearsonr(x_resid, y_resid)
-    return float(r), float(p)
-
-
 def compute_improvements(
     baseline: Dict[str, float], finetuned: Dict[str, float]
 ) -> Tuple[Dict[str, float], Dict[str, float]]:
@@ -171,7 +148,6 @@ def analyze_all_correlations(
     - Similarity vs finetuned
     - Similarity vs delta (absolute improvement)
     - Similarity vs delta_pct (relative improvement)
-    - Partial: Similarity vs finetuned, controlling for baseline
     """
     results = []
 
@@ -247,25 +223,5 @@ def analyze_all_correlations(
                         )
                     except ValueError as e:
                         print(f"Skip {sim_name} vs delta_pct_{trans_name}: {e}")
-
-                    # Partial correlation: similarity vs finetuned, controlling for baseline
-                    try:
-                        partial_r, partial_p = compute_partial_correlation(
-                            sim_arr_f, fine_arr, base_arr_f
-                        )
-                        results.append(
-                            CorrelationResult(
-                                sim_name,
-                                trans_name,
-                                "partial",
-                                partial_r,
-                                partial_p,
-                                np.nan,  # No Spearman for partial
-                                np.nan,
-                                len(common_fine),
-                            )
-                        )
-                    except ValueError as e:
-                        print(f"Skip {sim_name} vs partial_{trans_name}: {e}")
 
     return results

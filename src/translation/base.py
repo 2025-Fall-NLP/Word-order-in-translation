@@ -28,6 +28,16 @@ class BaseTranslator(ABC):
             raise ValueError(f"Unknown language: {lang}")
         return self._lang_codes[lang]
 
+    def set_langs(self, src_lang: str, tgt_lang: str) -> None:
+        """Set source and target languages for the tokenizer and model."""
+        src_code = self._get_lang_code(src_lang)
+        tgt_code = self._get_lang_code(tgt_lang)
+        self._tokenizer.src_lang = src_code
+        self._tokenizer.tgt_lang = tgt_code
+        self._model.generation_config.forced_bos_token_id = (
+            self._tokenizer.convert_tokens_to_ids(tgt_code)
+        )
+
     def translate(
         self,
         texts: List[str],
@@ -37,10 +47,7 @@ class BaseTranslator(ABC):
         show_progress: bool = False,
     ) -> List[str]:
         """Translate texts from source to target language."""
-        src_code = self._get_lang_code(src_lang)
-        tgt_code = self._get_lang_code(tgt_lang)
-        self._tokenizer.src_lang = src_code
-        self._tokenizer.tgt_lang = tgt_code
+        self.set_langs(src_lang, tgt_lang)
         self._model.eval()
 
         all_translations = []
@@ -60,7 +67,9 @@ class BaseTranslator(ABC):
             with torch.no_grad():
                 generated = self._model.generate(
                     **inputs,
-                    forced_bos_token_id=self._tokenizer.convert_tokens_to_ids(tgt_code),
+                    forced_bos_token_id=self._tokenizer.convert_tokens_to_ids(
+                        self._get_lang_code(tgt_lang)
+                    ),
                     max_length=self._max_length,
                     num_beams=self._num_beams,
                 )
@@ -96,15 +105,11 @@ class TrainableMixin:
     def preprocess_batch(
         self,
         examples: Dict,
-        src_lang: str,
-        tgt_lang: str,
         src_col: str = "src",
         tgt_col: str = "tgt",
         max_length: int = 128,
     ) -> Dict:
-        """Tokenize batch for training."""
-        self._tokenizer.src_lang = self._get_lang_code(src_lang)
-        self._tokenizer.tgt_lang = self._get_lang_code(tgt_lang)
+        """Tokenize batch for training. set_langs() must be called before this."""
         inputs = self._tokenizer(
             examples[src_col], max_length=max_length, truncation=True, padding=False
         )
