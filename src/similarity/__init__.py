@@ -4,6 +4,7 @@ from .registry import (
     list_similarity_metrics,
     register_similarity_metric,
 )
+from . import metrics as _metrics
 
 __all__ = [
     "BaseSimilarityMetric",

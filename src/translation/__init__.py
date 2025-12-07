@@ -8,6 +8,8 @@ from .registry import (
     register_model,
 )
 from .trainer import checkpoint_exists, finetune_translation_model, get_checkpoint_path
+from . import evaluate as _evaluate
+from . import models as _models
 
 __all__ = [
     # Base classes
