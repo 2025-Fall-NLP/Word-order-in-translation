@@ -60,9 +60,7 @@ def finetune_translation_model(
     translator.set_langs(src_lang, tgt_lang)
 
     max_length = cfg.get("max_length", 128)
-    preprocess = lambda ex: translator.preprocess_batch(
-        ex, "src", "tgt", max_length
-    )
+    preprocess = lambda ex: translator.preprocess_batch(ex, "src", "tgt", max_length)
 
     # Keep validation sources for COMET (needs src sentences)
     val_sources = val_ds["src"]

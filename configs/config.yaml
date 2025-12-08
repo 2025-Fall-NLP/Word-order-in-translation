@@ -76,6 +76,24 @@ translation:
     max_length: 128
     bf16: true
 
+analysis:
+  scatter_4d:
+    - x: uriel_none
+      y: delta_comet
+      size: labse_none
+      color: script_none
+    - x: uriel_none
+      y: finetuned_comet
+      size: labse_none
+      color: script_none
+  heatmap:
+    - name: heatmap_delta
+      sim_metrics: [mdeberta_mean, labse_none, uriel_none, script_none]
+      trans_metrics: [delta_bleu, delta_comet, delta_chrf, delta_bertscore]
+    - name: heatmap_finetuned
+      sim_metrics: [mdeberta_mean, labse_none, uriel_none, script_none]
+      trans_metrics: [finetuned_bleu, finetuned_comet, finetuned_chrf, finetuned_bertscore]
+
 paths:
   output_dir: outputs/
   checkpoint_dir: checkpoints/

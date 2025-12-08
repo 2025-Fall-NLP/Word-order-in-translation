@@ -62,6 +62,15 @@ class Config:
     def training(self) -> Dict[str, Any]:
         return self._data["translation"]["training"]
 
+    # Analysis
+    @property
+    def scatter_4d(self) -> List[Dict[str, Any]]:
+        return self._data.get("analysis", {}).get("scatter_4d", [])
+
+    @property
+    def heatmap(self) -> List[Dict[str, Any]]:
+        return self._data.get("analysis", {}).get("heatmap", [])
+
     # Raw access
     def __getitem__(self, key: str) -> Any:
         return self._data[key]

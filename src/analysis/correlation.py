@@ -11,16 +11,6 @@ from .base import CorrelationResult
 def apply_fdr_correction(results: List[CorrelationResult]) -> List[CorrelationResult]:
     """
     Apply Benjamini-Hochberg FDR correction to all p-values.
-
-    This corrects for multiple comparisons by controlling the false discovery rate.
-    With 30 tests at alpha=0.05, we'd expect ~1.5 false positives by chance.
-    FDR correction adjusts p-values to account for this.
-
-    Args:
-        results: List of CorrelationResult objects with raw p-values
-
-    Returns:
-        Same list with pearson_p_adj and spearman_p_adj fields populated
     """
     if not results:
         return results
@@ -59,36 +49,19 @@ def apply_fdr_correction(results: List[CorrelationResult]) -> List[CorrelationRe
 def _benjamini_hochberg(p_values: np.ndarray) -> np.ndarray:
     """
     Benjamini-Hochberg FDR correction.
-
-    Args:
-        p_values: Array of raw p-values
-
-    Returns:
-        Array of adjusted p-values (same order as input)
     """
     n = len(p_values)
     if n == 0:
         return p_values
 
-    # Sort p-values and get original indices
     sorted_indices = np.argsort(p_values)
     sorted_p = p_values[sorted_indices]
-
-    # BH adjustment: p_adj[i] = p[i] * n / rank[i]
-    # Then ensure monotonicity from right to left
     ranks = np.arange(1, n + 1)
     adjusted = sorted_p * n / ranks
-
-    # Ensure monotonicity: adjusted[i] <= adjusted[i+1]
     adjusted = np.minimum.accumulate(adjusted[::-1])[::-1]
-
-    # Cap at 1.0
     adjusted = np.minimum(adjusted, 1.0)
-
-    # Restore original order
     result = np.empty(n)
     result[sorted_indices] = adjusted
-
     return result
 
 
@@ -120,19 +93,12 @@ def compute_correlation(
     )
 
 
-def compute_improvements(
+def compute_abs_delta(
     baseline: Dict[str, float], finetuned: Dict[str, float]
-) -> Tuple[Dict[str, float], Dict[str, float]]:
-    """Compute absolute (delta) and relative (delta_pct) improvements."""
+) -> Dict[str, float]:
+    """Compute absolute delta between baseline and finetuned."""
     common = set(baseline.keys()) & set(finetuned.keys())
-    delta = {}
-    delta_pct = {}
-    for p in common:
-        b, f = baseline[p], finetuned[p]
-        if b is not None and f is not None:
-            delta[p] = f - b
-            delta_pct[p] = ((f - b) / b * 100) if b != 0 else 0.0
-    return delta, delta_pct
+    return {p: finetuned[p] - baseline[p] for p in common}
 
 
 def analyze_all_correlations(
@@ -147,7 +113,6 @@ def analyze_all_correlations(
     - Similarity vs baseline
     - Similarity vs finetuned
     - Similarity vs delta (absolute improvement)
-    - Similarity vs delta_pct (relative improvement)
     """
     results = []
 
@@ -179,7 +144,6 @@ def analyze_all_correlations(
                 common_fine = sorted(set(common) & set(fine_scores.keys()))
                 if len(common_fine) >= 3:
                     sim_arr_f = np.array([sim_scores[p] for p in common_fine])
-                    base_arr_f = np.array([base_scores[p] for p in common_fine])
                     fine_arr = np.array([fine_scores[p] for p in common_fine])
 
                     # Similarity vs finetuned
@@ -193,7 +157,7 @@ def analyze_all_correlations(
                         print(f"Skip {sim_name} vs finetuned_{trans_name}: {e}")
 
                     # Compute improvements
-                    delta_dict, delta_pct_dict = compute_improvements(
+                    delta_dict = compute_abs_delta(
                         {p: base_scores[p] for p in common_fine},
                         {p: fine_scores[p] for p in common_fine},
                     )
@@ -208,20 +172,5 @@ def analyze_all_correlations(
                         )
                     except ValueError as e:
                         print(f"Skip {sim_name} vs delta_{trans_name}: {e}")
-
-                    # Similarity vs delta_pct (relative)
-                    delta_pct_arr = np.array([delta_pct_dict[p] for p in common_fine])
-                    try:
-                        results.append(
-                            compute_correlation(
-                                sim_arr_f,
-                                delta_pct_arr,
-                                sim_name,
-                                trans_name,
-                                "delta_pct",
-                            )
-                        )
-                    except ValueError as e:
-                        print(f"Skip {sim_name} vs delta_pct_{trans_name}: {e}")
 
     return results

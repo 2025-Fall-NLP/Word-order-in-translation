@@ -14,6 +14,8 @@ from src.analysis import (
     CorrelationResult,
     analyze_all_correlations,
     apply_fdr_correction,
+    generate_all_heatmaps,
+    generate_all_scatter_plots,
 )
 from src.utils import (
     OUTPUT_DIR_ANALYSIS,
@@ -92,7 +94,7 @@ def print_summary(results: List[CorrelationResult]) -> None:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Correlation analysis")
+    parser = argparse.ArgumentParser(description="Experiment results analysis")
     parser.add_argument("--config", required=True, help="Config file path")
     args = parser.parse_args()
 
@@ -153,6 +155,33 @@ def main():
     }
     save_results(output_path, metadata, [r.to_dict() for r in results])
     print(f"\nSaved to: {output_path}")
+
+    # Generate scatter plots if configured
+    if cfg.scatter_4d:
+        print("\n" + "=" * 80)
+        print("SCATTER PLOTS")
+        print("=" * 80)
+        generate_all_scatter_plots(
+            sim_data=sim_results,
+            baseline_data=baseline,
+            finetuned_data=finetuned,
+            plot_configs=cfg.scatter_4d,
+            output_dir=cfg.output_dir / OUTPUT_DIR_ANALYSIS,
+        )
+
+    # Generate heatmaps if configured
+    if cfg.heatmap:
+        print("\n" + "=" * 80)
+        print("HEATMAPS")
+        print("=" * 80)
+        generate_all_heatmaps(
+            sim_data=sim_results,
+            baseline_data=baseline,
+            finetuned_data=finetuned,
+            heatmap_configs=cfg.heatmap,
+            output_dir=cfg.output_dir / OUTPUT_DIR_ANALYSIS,
+        )
+
     return 0
 
 

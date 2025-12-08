@@ -1,104 +1,104 @@
 {
   "description": "NLLB dataset statistics for all 15 configured language pairs",
   "dataset": "allenai/nllb",
-  "samples_checked": 20000,
+  "samples_checked": 10000,
   "pairs": {
     "gl-pt": {
       "nllb_config": "glg_Latn-por_Latn",
-      "samples_available": 20000,
-      "avg_laser_score": 1.1966,
-      "min_laser_score": 1.1847
+      "samples_available": 10000,
+      "avg_laser_score": 1.2046,
+      "min_laser_score": 1.1936
     },
     "ru-uk": {
       "nllb_config": "rus_Cyrl-ukr_Cyrl",
-      "samples_available": 20000,
-      "avg_laser_score": 1.2104,
-      "min_laser_score": 1.1998
+      "samples_available": 10000,
+      "avg_laser_score": 1.2175,
+      "min_laser_score": 1.2075
     },
     "pt-ro": {
       "nllb_config": "por_Latn-ron_Latn",
-      "samples_available": 20000,
-      "avg_laser_score": 1.1867,
-      "min_laser_score": 1.178
+      "samples_available": 10000,
+      "avg_laser_score": 1.1927,
+      "min_laser_score": 1.184
     },
     "gl-it": {
       "nllb_config": "glg_Latn-ita_Latn",
-      "samples_available": 20000,
-      "avg_laser_score": 1.184,
-      "min_laser_score": 1.1715
+      "samples_available": 10000,
+      "avg_laser_score": 1.1924,
+      "min_laser_score": 1.1805
     },
     "en-de": {
       "nllb_config": "deu_Latn-eng_Latn",
-      "samples_available": 20000,
-      "avg_laser_score": 1.2027,
-      "min_laser_score": 1.1935
+      "samples_available": 10000,
+      "avg_laser_score": 1.2093,
+      "min_laser_score": 1.1996
     },
     "ko-ja": {
       "nllb_config": "jpn_Jpan-kor_Hang",
-      "samples_available": 20000,
-      "avg_laser_score": 1.1564,
-      "min_laser_score": 1.1422
+      "samples_available": 10000,
+      "avg_laser_score": 1.1663,
+      "min_laser_score": 1.1518
     },
     "ja-zh": {
       "nllb_config": "jpn_Jpan-zho_Hans",
-      "samples_available": 20000,
-      "avg_laser_score": 1.1625,
-      "min_laser_score": 1.1461
+      "samples_available": 10000,
+      "avg_laser_score": 1.1741,
+      "min_laser_score": 1.1574
     },
     "ko-zh": {
       "nllb_config": "kor_Hang-zho_Hans",
-      "samples_available": 20000,
-      "avg_laser_score": 1.1491,
-      "min_laser_score": 1.1353
+      "samples_available": 10000,
+      "avg_laser_score": 1.1588,
+      "min_laser_score": 1.1445
     },
     "en-fr": {
       "nllb_config": "eng_Latn-fra_Latn",
-      "samples_available": 20000,
-      "avg_laser_score": 1.2095,
-      "min_laser_score": 1.1995
+      "samples_available": 10000,
+      "avg_laser_score": 1.2167,
+      "min_laser_score": 1.206
     },
     "en-es": {
       "nllb_config": "eng_Latn-spa_Latn",
-      "samples_available": 20000,
-      "avg_laser_score": 1.2198,
-      "min_laser_score": 1.2077
+      "samples_available": 10000,
+      "avg_laser_score": 1.228,
+      "min_laser_score": 1.2166
     },
     "en-ru": {
       "nllb_config": "eng_Latn-rus_Cyrl",
-      "samples_available": 20000,
-      "avg_laser_score": 1.1927,
-      "min_laser_score": 1.1838
+      "samples_available": 10000,
+      "avg_laser_score": 1.199,
+      "min_laser_score": 1.1897
     },
     "en-ko": {
       "nllb_config": "eng_Latn-kor_Hang",
-      "samples_available": 20000,
-      "avg_laser_score": 1.169,
-      "min_laser_score": 1.1575
+      "samples_available": 10000,
+      "avg_laser_score": 1.1768,
+      "min_laser_score": 1.1656
     },
     "en-ja": {
       "nllb_config": "eng_Latn-jpn_Jpan",
-      "samples_available": 20000,
-      "avg_laser_score": 1.2091,
-      "min_laser_score": 1.1929
+      "samples_available": 10000,
+      "avg_laser_score": 1.2196,
+      "min_laser_score": 1.2055
     },
     "en-zh": {
       "nllb_config": "eng_Latn-zho_Hans",
-      "samples_available": 20000,
-      "avg_laser_score": 1.186,
-      "min_laser_score": 1.1747
+      "samples_available": 10000,
+      "avg_laser_score": 1.1939,
+      "min_laser_score": 1.1824
     },
     "en-ar": {
       "nllb_config": "arb_Arab-eng_Latn",
-      "samples_available": 20000,
-      "avg_laser_score": 1.1863,
-      "min_laser_score": 1.1768
+      "samples_available": 10000,
+      "avg_laser_score": 1.1929,
+      "min_laser_score": 1.1831
     }
   },
   "summary": {
     "total_pairs": 15,
     "laser_score_range": {
-      "min": 1.1353,
-      "max": 1.2198
+      "min": 1.1445,
+      "max": 1.25
     }
   }
 }

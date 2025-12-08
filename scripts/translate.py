@@ -9,7 +9,6 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from src.translation import (
-    BaseTranslator,
     checkpoint_exists,
     get_checkpoint_path,
     get_model,

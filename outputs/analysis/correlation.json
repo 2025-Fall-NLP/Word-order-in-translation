@@ -1,0 +1,781 @@
+{
+  "metadata": {
+    "type": "correlation_analysis",
+    "n_correlations": 48,
+    "significant_spearman_raw": 24,
+    "significant_spearman_fdr": 20,
+    "significant_pearson_raw": 22,
+    "significant_pearson_fdr": 16,
+    "computed_at": "2025-12-08T10:13:56.711304"
+  },
+  "results": [
+    {
+      "similarity_metric": "script_none",
+      "translation_metric": "chrf",
+      "stage": "baseline",
+      "pearson": {
+        "r": 0.8907440037979284,
+        "p": 8.464565532801645e-06,
+        "p_adj": 0.00013543304852482632
+      },
+      "spearman": {
+        "rho": 0.7321428571428571,
+        "p": 0.0019129636009785611,
+        "p_adj": 0.011477781605871366
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "script_none",
+      "translation_metric": "chrf",
+      "stage": "finetuned",
+      "pearson": {
+        "r": 0.8993811429155809,
+        "p": 5.063532696078459e-06,
+        "p_adj": 0.00013543304852482632
+      },
+      "spearman": {
+        "rho": 0.7392857142857142,
+        "p": 0.0016355111435407642,
+        "p_adj": 0.011477781605871366
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "script_none",
+      "translation_metric": "chrf",
+      "stage": "delta",
+      "pearson": {
+        "r": 0.360341758558259,
+        "p": 0.18704317910798254,
+        "p_adj": 0.24939090547731008
+      },
+      "spearman": {
+        "rho": 0.04642857142857142,
+        "p": 0.8694915255450946,
+        "p_adj": 0.9274576272481009
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "script_none",
+      "translation_metric": "bertscore",
+      "stage": "baseline",
+      "pearson": {
+        "r": 0.8022736141009833,
+        "p": 0.00031962941662570544,
+        "p_adj": 0.0030684423996067724
+      },
+      "spearman": {
+        "rho": 0.7428571428571428,
+        "p": 0.00150948887823503,
+        "p_adj": 0.011477781605871366
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "script_none",
+      "translation_metric": "bertscore",
+      "stage": "finetuned",
+      "pearson": {
+        "r": 0.5512266914007516,
+        "p": 0.03318058596679064,
+        "p_adj": 0.07963340632029754
+      },
+      "spearman": {
+        "rho": 0.7107142857142856,
+        "p": 0.002978994886802742,
+        "p_adj": 0.014299175456653162
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "script_none",
+      "translation_metric": "bertscore",
+      "stage": "delta",
+      "pearson": {
+        "r": 0.3116167320783299,
+        "p": 0.2582128170446618,
+        "p_adj": 0.30229793214984796
+      },
+      "spearman": {
+        "rho": -0.2321428571428571,
+        "p": 0.40509874069364893,
+        "p_adj": 0.5255335014404094
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "script_none",
+      "translation_metric": "comet",
+      "stage": "baseline",
+      "pearson": {
+        "r": 0.5801430122731861,
+        "p": 0.023378843712979346,
+        "p_adj": 0.06234358323461158
+      },
+      "spearman": {
+        "rho": 0.5642857142857142,
+        "p": 0.028432522148708533,
+        "p_adj": 0.059337437527739546
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "script_none",
+      "translation_metric": "comet",
+      "stage": "finetuned",
+      "pearson": {
+        "r": 0.4977943544244341,
+        "p": 0.05898842392228401,
+        "p_adj": 0.11797684784456802
+      },
+      "spearman": {
+        "rho": 0.6607142857142856,
+        "p": 0.007330569830891703,
+        "p_adj": 0.024864804347739026
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "script_none",
+      "translation_metric": "comet",
+      "stage": "delta",
+      "pearson": {
+        "r": 0.3631231717572314,
+        "p": 0.18341361689145977,
+        "p_adj": 0.24939090547731008
+      },
+      "spearman": {
+        "rho": -0.13928571428571426,
+        "p": 0.6205460876279014,
+        "p_adj": 0.7510121922136574
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "script_none",
+      "translation_metric": "bleu",
+      "stage": "baseline",
+      "pearson": {
+        "r": 0.8732087992437194,
+        "p": 2.1318225298546544e-05,
+        "p_adj": 0.00025581870358255853
+      },
+      "spearman": {
+        "rho": 0.7499999999999999,
+        "p": 0.001280898450935536,
+        "p_adj": 0.011477781605871366
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "script_none",
+      "translation_metric": "bleu",
+      "stage": "finetuned",
+      "pearson": {
+        "r": 0.8913863629409047,
+        "p": 8.159311034981517e-06,
+        "p_adj": 0.00013543304852482632
+      },
+      "spearman": {
+        "rho": 0.7428571428571428,
+        "p": 0.00150948887823503,
+        "p_adj": 0.011477781605871366
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "script_none",
+      "translation_metric": "bleu",
+      "stage": "delta",
+      "pearson": {
+        "r": 0.09155607505941553,
+        "p": 0.7455482726173003,
+        "p_adj": 0.777963414905009
+      },
+      "spearman": {
+        "rho": -0.11785714285714284,
+        "p": 0.6757115292213043,
+        "p_adj": 0.7542826372702932
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "uriel_none",
+      "translation_metric": "chrf",
+      "stage": "baseline",
+      "pearson": {
+        "r": 0.6248285492007847,
+        "p": 0.01275922174771487,
+        "p_adj": 0.040829509592687586
+      },
+      "spearman": {
+        "rho": 0.5522790409057425,
+        "p": 0.03277731267650457,
+        "p_adj": 0.06555462535300914
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "uriel_none",
+      "translation_metric": "chrf",
+      "stage": "finetuned",
+      "pearson": {
+        "r": 0.7199888006144943,
+        "p": 0.002471074399039372,
+        "p_adj": 0.011861157115388985
+      },
+      "spearman": {
+        "rho": 0.6523684463773335,
+        "p": 0.008390072028039243,
+        "p_adj": 0.02517021608411773
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "uriel_none",
+      "translation_metric": "chrf",
+      "stage": "delta",
+      "pearson": {
+        "r": 0.5627565943764492,
+        "p": 0.028960213657596885,
+        "p_adj": 0.07316264502971845
+      },
+      "spearman": {
+        "rho": 0.47721198680204935,
+        "p": 0.07205263036541532,
+        "p_adj": 0.1383410503015974
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "uriel_none",
+      "translation_metric": "bertscore",
+      "stage": "baseline",
+      "pearson": {
+        "r": 0.5037022439240372,
+        "p": 0.05558065694427741,
+        "p_adj": 0.11599441449240504
+      },
+      "spearman": {
+        "rho": 0.44146577056219555,
+        "p": 0.0994808865777583,
+        "p_adj": 0.17685490947157032
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "uriel_none",
+      "translation_metric": "bertscore",
+      "stage": "finetuned",
+      "pearson": {
+        "r": 0.6003843577890163,
+        "p": 0.017957098672692046,
+        "p_adj": 0.05070239625230695
+      },
+      "spearman": {
+        "rho": 0.6041110544535307,
+        "p": 0.01707443966444333,
+        "p_adj": 0.040978655194663996
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "uriel_none",
+      "translation_metric": "bertscore",
+      "stage": "delta",
+      "pearson": {
+        "r": 0.49068454647408977,
+        "p": 0.0632883372694422,
+        "p_adj": 0.12151360755732903
+      },
+      "spearman": {
+        "rho": 0.25558544611495526,
+        "p": 0.3578844093533201,
+        "p_adj": 0.4771792124710935
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "uriel_none",
+      "translation_metric": "comet",
+      "stage": "baseline",
+      "pearson": {
+        "r": 0.46811732404508866,
+        "p": 0.07844169795026727,
+        "p_adj": 0.13106361493898347
+      },
+      "spearman": {
+        "rho": 0.4521896354341517,
+        "p": 0.09058928790838341,
+        "p_adj": 0.16724176229240018
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "uriel_none",
+      "translation_metric": "comet",
+      "stage": "finetuned",
+      "pearson": {
+        "r": 0.6419328692668428,
+        "p": 0.009879651234930379,
+        "p_adj": 0.03387308994833273
+      },
+      "spearman": {
+        "rho": 0.900804649244318,
+        "p": 4.6319653199518016e-06,
+        "p_adj": 0.00022233433535768647
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "uriel_none",
+      "translation_metric": "comet",
+      "stage": "delta",
+      "pearson": {
+        "r": 0.528804647189683,
+        "p": 0.04268882629547837,
+        "p_adj": 0.09757446010395056
+      },
+      "spearman": {
+        "rho": 0.280607797482853,
+        "p": 0.31103662450160646,
+        "p_adj": 0.4265645136022031
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "uriel_none",
+      "translation_metric": "bleu",
+      "stage": "baseline",
+      "pearson": {
+        "r": 0.6069175102594441,
+        "p": 0.016432067453563327,
+        "p_adj": 0.04929620236068998
+      },
+      "spearman": {
+        "rho": 0.5773013922736403,
+        "p": 0.02422988615923839,
+        "p_adj": 0.055382596935402026
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "uriel_none",
+      "translation_metric": "bleu",
+      "stage": "finetuned",
+      "pearson": {
+        "r": 0.6439656386229194,
+        "p": 0.009574432481452058,
+        "p_adj": 0.03387308994833273
+      },
+      "spearman": {
+        "rho": 0.6738161761212458,
+        "p": 0.005882294882826482,
+        "p_adj": 0.023529179531305927
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "uriel_none",
+      "translation_metric": "bleu",
+      "stage": "delta",
+      "pearson": {
+        "r": 0.30046061959620074,
+        "p": 0.27654360986403326,
+        "p_adj": 0.31604983984460944
+      },
+      "spearman": {
+        "rho": 0.2823951082948457,
+        "p": 0.30783356127812966,
+        "p_adj": 0.4265645136022031
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "mdeberta_mean",
+      "translation_metric": "chrf",
+      "stage": "baseline",
+      "pearson": {
+        "r": 0.4825537567462444,
+        "p": 0.06847930536316016,
+        "p_adj": 0.12642333297814184
+      },
+      "spearman": {
+        "rho": 0.33928571428571425,
+        "p": 0.2160289253419548,
+        "p_adj": 0.3344964005294784
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "mdeberta_mean",
+      "translation_metric": "chrf",
+      "stage": "finetuned",
+      "pearson": {
+        "r": 0.5236581006219956,
+        "p": 0.04513016791547076,
+        "p_adj": 0.09846582090648166
+      },
+      "spearman": {
+        "rho": 0.38214285714285706,
+        "p": 0.1598236299869673,
+        "p_adj": 0.25571780797914767
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "mdeberta_mean",
+      "translation_metric": "chrf",
+      "stage": "delta",
+      "pearson": {
+        "r": 0.3219374192069195,
+        "p": 0.24193157316582353,
+        "p_adj": 0.29242445675273293
+      },
+      "spearman": {
+        "rho": 0.07142857142857141,
+        "p": 0.8002959873970544,
+        "p_adj": 0.8730501680695139
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "mdeberta_mean",
+      "translation_metric": "bertscore",
+      "stage": "baseline",
+      "pearson": {
+        "r": 0.3208044667010402,
+        "p": 0.2436870472939441,
+        "p_adj": 0.29242445675273293
+      },
+      "spearman": {
+        "rho": 0.3071428571428571,
+        "p": 0.2654726857102779,
+        "p_adj": 0.3861420883058588
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "mdeberta_mean",
+      "translation_metric": "bertscore",
+      "stage": "finetuned",
+      "pearson": {
+        "r": 0.4000664266533041,
+        "p": 0.1395232886009525,
+        "p_adj": 0.19697405449546235
+      },
+      "spearman": {
+        "rho": 0.3285714285714285,
+        "p": 0.23180969720615968,
+        "p_adj": 0.34771454580923955
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "mdeberta_mean",
+      "translation_metric": "bertscore",
+      "stage": "delta",
+      "pearson": {
+        "r": 0.33303255993646724,
+        "p": 0.2251540847095635,
+        "p_adj": 0.28440515963313284
+      },
+      "spearman": {
+        "rho": -0.007142857142857141,
+        "p": 0.9798442277615982,
+        "p_adj": 1.0
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "mdeberta_mean",
+      "translation_metric": "comet",
+      "stage": "baseline",
+      "pearson": {
+        "r": 0.4725387391303839,
+        "p": 0.07528702812897609,
+        "p_adj": 0.13106361493898347
+      },
+      "spearman": {
+        "rho": 0.5642857142857142,
+        "p": 0.028432522148708533,
+        "p_adj": 0.059337437527739546
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "mdeberta_mean",
+      "translation_metric": "comet",
+      "stage": "finetuned",
+      "pearson": {
+        "r": 0.4633942157661077,
+        "p": 0.08191475933686466,
+        "p_adj": 0.13106361493898347
+      },
+      "spearman": {
+        "rho": 0.6464285714285712,
+        "p": 0.009214550689979985,
+        "p_adj": 0.0259731858549207
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "mdeberta_mean",
+      "translation_metric": "comet",
+      "stage": "delta",
+      "pearson": {
+        "r": 0.35262583618717724,
+        "p": 0.19735458050713459,
+        "p_adj": 0.25602756390114756
+      },
+      "spearman": {
+        "rho": 0.16785714285714282,
+        "p": 0.5498555542278019,
+        "p_adj": 0.6945543842877497
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "mdeberta_mean",
+      "translation_metric": "bleu",
+      "stage": "baseline",
+      "pearson": {
+        "r": 0.4557956123241574,
+        "p": 0.08772985890361179,
+        "p_adj": 0.13583978152817308
+      },
+      "spearman": {
+        "rho": 0.38214285714285706,
+        "p": 0.1598236299869673,
+        "p_adj": 0.25571780797914767
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "mdeberta_mean",
+      "translation_metric": "bleu",
+      "stage": "finetuned",
+      "pearson": {
+        "r": 0.4649970140394428,
+        "p": 0.08072412765365397,
+        "p_adj": 0.13106361493898347
+      },
+      "spearman": {
+        "rho": 0.39642857142857135,
+        "p": 0.1434945314423536,
+        "p_adj": 0.24599062532974905
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "mdeberta_mean",
+      "translation_metric": "bleu",
+      "stage": "delta",
+      "pearson": {
+        "r": 0.04500735593403269,
+        "p": 0.8734564040369321,
+        "p_adj": 0.8920405828462287
+      },
+      "spearman": {
+        "rho": 0.0,
+        "p": 1.0,
+        "p_adj": 1.0
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "labse_none",
+      "translation_metric": "chrf",
+      "stage": "baseline",
+      "pearson": {
+        "r": 0.7824037393152157,
+        "p": 0.0005656742338911892,
+        "p_adj": 0.003878909032396726
+      },
+      "spearman": {
+        "rho": 0.7107142857142856,
+        "p": 0.002978994886802742,
+        "p_adj": 0.014299175456653162
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "labse_none",
+      "translation_metric": "chrf",
+      "stage": "finetuned",
+      "pearson": {
+        "r": 0.7824504815556304,
+        "p": 0.0005649536762762822,
+        "p_adj": 0.003878909032396726
+      },
+      "spearman": {
+        "rho": 0.7321428571428571,
+        "p": 0.0019129636009785611,
+        "p_adj": 0.011477781605871366
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "labse_none",
+      "translation_metric": "chrf",
+      "stage": "delta",
+      "pearson": {
+        "r": 0.2902822216192802,
+        "p": 0.2939294018040867,
+        "p_adj": 0.32810723922316654
+      },
+      "spearman": {
+        "rho": 0.13214285714285715,
+        "p": 0.6387442188840665,
+        "p_adj": 0.7510121922136574
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "labse_none",
+      "translation_metric": "bertscore",
+      "stage": "baseline",
+      "pearson": {
+        "r": 0.6638084006249109,
+        "p": 0.006965676913599375,
+        "p_adj": 0.0278627076543975
+      },
+      "spearman": {
+        "rho": 0.6428571428571428,
+        "p": 0.009739944695595262,
+        "p_adj": 0.0259731858549207
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "labse_none",
+      "translation_metric": "bertscore",
+      "stage": "finetuned",
+      "pearson": {
+        "r": 0.4417366118075667,
+        "p": 0.09924907997118662,
+        "p_adj": 0.14887361995677995
+      },
+      "spearman": {
+        "rho": 0.6607142857142856,
+        "p": 0.007330569830891703,
+        "p_adj": 0.024864804347739026
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "labse_none",
+      "translation_metric": "bertscore",
+      "stage": "delta",
+      "pearson": {
+        "r": 0.2411818434928881,
+        "p": 0.3865205752829757,
+        "p_adj": 0.41228861363517405
+      },
+      "spearman": {
+        "rho": -0.125,
+        "p": 0.6571356681869504,
+        "p_adj": 0.7510121922136574
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "labse_none",
+      "translation_metric": "comet",
+      "stage": "baseline",
+      "pearson": {
+        "r": 0.7043548707253591,
+        "p": 0.0033730497948399676,
+        "p_adj": 0.014718762741119858
+      },
+      "spearman": {
+        "rho": 0.6178571428571428,
+        "p": 0.014103928406489474,
+        "p_adj": 0.03563097702692077
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "labse_none",
+      "translation_metric": "comet",
+      "stage": "finetuned",
+      "pearson": {
+        "r": 0.43586941667781054,
+        "p": 0.10435589392053343,
+        "p_adj": 0.15179039115713952
+      },
+      "spearman": {
+        "rho": 0.8142857142857142,
+        "p": 0.000219365827727102,
+        "p_adj": 0.005264779865450448
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "labse_none",
+      "translation_metric": "comet",
+      "stage": "delta",
+      "pearson": {
+        "r": 0.2754937979664983,
+        "p": 0.32030766666770233,
+        "p_adj": 0.3494265454556753
+      },
+      "spearman": {
+        "rho": -0.017857142857142853,
+        "p": 0.9496353041738621,
+        "p_adj": 0.9909237956596822
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "labse_none",
+      "translation_metric": "bleu",
+      "stage": "baseline",
+      "pearson": {
+        "r": 0.7323685042468395,
+        "p": 0.0019036562627543544,
+        "p_adj": 0.010152833401356556
+      },
+      "spearman": {
+        "rho": 0.657142857142857,
+        "p": 0.007770251358668445,
+        "p_adj": 0.024864804347739026
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "labse_none",
+      "translation_metric": "bleu",
+      "stage": "finetuned",
+      "pearson": {
+        "r": 0.741216108708169,
+        "p": 0.001566384912694508,
+        "p_adj": 0.009398309476167047
+      },
+      "spearman": {
+        "rho": 0.7,
+        "p": 0.0036660678988013817,
+        "p_adj": 0.015997387194769664
+      },
+      "n_pairs": 15
+    },
+    {
+      "similarity_metric": "labse_none",
+      "translation_metric": "bleu",
+      "stage": "delta",
+      "pearson": {
+        "r": 0.014724854386689891,
+        "p": 0.95846191314097,
+        "p_adj": 0.9584619131409701
+      },
+      "spearman": {
+        "rho": -0.12857142857142856,
+        "p": 0.6479163294665075,
+        "p_adj": 0.7510121922136574
+      },
+      "n_pairs": 15
+    }
+  ]
+}
