@@ -33,12 +33,11 @@ def print_summary(results: List[CorrelationResult]) -> None:
     print("Primary: Spearman ρ (robust to outliers) | Secondary: Pearson r")
     print("=" * 80)
 
-    stages = ["baseline", "finetuned", "delta", "delta_pct"]
+    stages = ["baseline", "finetuned", "delta"]
     stage_labels = {
         "baseline": "BASELINE (sim vs base quality)",
         "finetuned": "FINETUNED (sim vs fine quality)",
         "delta": "DELTA (sim vs absolute improvement)",
-        "delta_pct": "DELTA % (sim vs relative improvement)",
     }
 
     def sig_marker(p_raw: float, p_adj: float | None) -> str:

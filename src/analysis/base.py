@@ -10,7 +10,7 @@ class CorrelationResult:
 
     similarity_metric: str
     translation_metric: str
-    stage: str  # baseline, finetuned, delta, delta_pct, partial
+    stage: str  # baseline, finetuned, delta
     pearson_r: float
     pearson_p: float
     spearman_r: float

@@ -1,38 +1,41 @@
 # multilang-simtrans
 
-This repository investigates the relation between language similarity and machine translation quality.
+This repository provides the experiment setup to investigate the relation between language similarity and machine translation quality.
 
 ## Introduction
 
-It is generally accepted that language similarity affects translation quality. However, it is hard to find studies that look closely at the exact relationship between word order similarity and translation performance. In this study, we:
+In this experiment, we:
 
-1. **Compute language similarity** using multilingual embedding models (mDeBERTa, LaBSE)
-2. **Evaluate translation quality** before and after fine-tuning (mBART-50)
-3. **Analyze the correlation** between similarity and translation improvement
+1. **Compute language similarity** using multilingual embedding models (mDeBERTa, LaBSE) and more metrics (URIEL, chrF)
+2. **Evaluate translation quality** before and after fine-tuning (mBART-50, nllb-200)
+3. **Analyze the correlation** between similarity and translation quality
 
 ## Directory Structure
 
 ```
-word-order-in-translation/
+multilang-simtrans/
 ├── configs/
 │   └── config.yaml              # All experiment settings
 ├── src/
 │   ├── data/                    # Data loading (FLORES, OPUS-100)
 │   ├── similarity/              # Similarity metrics (mDeBERTa, LaBSE)
 │   ├── translation/             # Translation model, evaluation, training
-│   ├── analysis/                # Correlation analysis
+│   ├── analysis/                # Correlation and plots
 │   └── utils/                   # Common utilities
 ├── scripts/
 │   ├── run_similarity.py        # Compute language similarity
 │   ├── run_evaluate.py          # Evaluate translation
-|   ├── run_finetune.py          # Finetune translation model
-│   └── run_analysis.py          # Analyze correlations
-├── notebooks/                   # Original exploration notebooks
-├── outputs/                     # Results (JSON files, figures)
+|   ├── run_finetune.py          # Fine-tune translation model
+│   └── run_analysis.py          # Analyze correlations and draw plots
+│   └── translate.py             # Interactively translate
+├── notebooks/                   # Deprecated exploration notebooks
+├── outputs/                     # Results (JSON, figures)
 └── checkpoints/                 # Trained model weights (gitignored)
 ```
 
 ## Installation
+
+Requires `Python>=3.10.0`
 
 ```bash
 git clone git@github.com:snunlp-2025-fall-team17/multilang-simtrans.git
@@ -50,8 +53,6 @@ pip install -r requirements.txt
 python scripts/run_similarity.py --config configs/config.yaml
 ```
 
-This computes embedding-based similarity scores for all configured language pairs.
-
 ### 2. Run Translation Experiments
 
 ```bash
@@ -61,8 +62,8 @@ python scripts/run_finetune.py --config configs/config.yaml
 # Evaluate the baseline and finetuned models
 python scripts/run_evaluate.py --config configs/config.yaml --baseline --finetuned
 
-# Force retrain even if checkpoints exist, e.g., after adjusting hyperparameters
-python scripts/run_finetune.py --config configs/config.yaml --retrain
+# You can force retrain even if checkpoints exist
+# python scripts/run_finetune.py --config configs/config.yaml --retrain
 ```
 
 ### 3. Analysis
@@ -83,6 +84,7 @@ All settings are in `configs/config.yaml`:
 
 - **language_pairs**: Which pairs to evaluate (12 pairs by default)
 - **datasets**: Which dataset is used for each case
-- **similarity**: Embedding model, pooling method, similarity function
-- **translation**: Model, training hyperparameters, evaluation metrics
+- **similarity**: Similarity metrics
+- **translation**: Model, evaluation metrics, fine-tuning hyperparameters
+- **analysis**: How to draw plots
 - **paths**: Result outputs and checkpoints paths
