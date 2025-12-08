@@ -3,7 +3,7 @@
     "stage": "finetuned",
     "metric": "comet",
     "model": "facebook/nllb-200-distilled-600M",
-    "computed_at": "2025-12-08T09:28:38.083728"
+    "computed_at": "2025-12-08T10:34:46.644684"
   },
   "results": {
     "gl-pt": 0.8696966302606899,
