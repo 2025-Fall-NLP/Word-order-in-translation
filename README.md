@@ -1,6 +1,6 @@
 # multilang-simtrans
 
-This repository investigates the relation between language similarity and machine translation quality in a controlled setup.
+This repository investigates the relation between language similarity and machine translation quality.
 
 ## Introduction
 
@@ -86,7 +86,3 @@ All settings are in `configs/config.yaml`:
 - **similarity**: Embedding model, pooling method, similarity function
 - **translation**: Model, training hyperparameters, evaluation metrics
 - **paths**: Result outputs and checkpoints paths
-
-## Related Work
-
-- Johnson, Melvin, et al. "Google's multilingual neural machine translation system: Enabling zero-shot translation." TACL 2017.
